@@ -57,15 +57,17 @@ urlTriplets = 'https://zenodo.org/record/831348/files/triplets_msd-a.tar.gz?down
 nameTriplets = 'triplets.tar.gz'
 folderTriplets = 'triplets'
 
+def getDataset():
 
-if os.path.exists(pathDataset):
-    print('dataset already exists')
-    exit(0)
-os.mkdir(pathDataset)
-getData(urlBios, pathDataset+nameBios,pathDataset + folderBios)
-getData(urlTags, pathDataset+nameTags, pathDataset + folderTags)
-getData(urlTriplets, pathDataset+nameTriplets, pathDataset + folderTriplets)
+    if os.path.exists(pathDataset):
+        print('Dataset already exists')
+        exit(0)
+    os.mkdir(pathDataset)
+    getData(urlBios, pathDataset+nameBios,pathDataset + folderBios)
+    getData(urlTags, pathDataset+nameTags, pathDataset + folderTags)
+    getData(urlTriplets, pathDataset+nameTriplets, pathDataset + folderTriplets)
 
+getDataset()
 
 
 
