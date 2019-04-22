@@ -67,9 +67,7 @@ def calculate_similar_artists(output_filename, model_name="als"):
     if issubclass(model.__class__, AlternatingLeastSquares):
         # lets weight these models by bm25weight.
         logging.debug("weighting matrix by bm25_weight")
-        print(plays)
         plays = bm25_weight(plays, K1=100, B=0.8)
-        print(plays)
 
         # also disable building approximate recommend index
         model.approximate_recommend = False
@@ -107,14 +105,13 @@ def calculate_recommendations(output_filename, model_name="als"):
     # train the model based off input params
     artists, users, plays = get_lastfm()
 
-
+    print(artists)
 
     # create a model from the input data
     model = get_model(model_name)
 
     # if we're training an ALS based model, weight input for last.fm
     # by bm25
-    print(plays)
     if issubclass(model.__class__, AlternatingLeastSquares):
         # lets weight these models by bm25weight.
         logging.debug("weighting matrix by bm25_weight")
@@ -126,7 +123,6 @@ def calculate_recommendations(output_filename, model_name="als"):
     # this is actually disturbingly expensive:
     plays = plays.tocsr()
 
-    print(plays.tocsr())
     import sys
     sys.exit() 
 
@@ -165,7 +161,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    if args.recommend:
+    if args.recommend or True:
         print("RECOMMEND")
         calculate_recommendations(args.outputfile, model_name=args.model)
     else:
