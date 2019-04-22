@@ -81,4 +81,4 @@ item_user_raw = np.array([
 # convert to compressed sparse row matrix (csr_matrix)
 item_user_data = csr_matrix(item_user_raw)
 
-print("Done")
+print(item_user_data)
