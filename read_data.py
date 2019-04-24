@@ -2,6 +2,8 @@ import pandas as pd
 from scipy.sparse import coo_matrix, csr_matrix
 import numpy as np
 import sys
+from implicit.nearest_neighbours import bm25_weight
+
 
 def countLines(dataset_path):
     print('Counting lines')
@@ -65,20 +67,24 @@ users, artists, plays = read_triplets(dataset_path)
 # sparse matrix
 item_user_raw = np.array([
     # 0  1  2  users
-    [1, 0, 1 ],  # artist0 
-    [1, 0, 222 ],  # artist1 
-    [1, 0, 143 ],  # artist2 
-    [2, 0, 133 ],  # artist3 
-    [1, 0, 0 ],  # artist4 
-    [32, 0, 1132 ],  # artist5 
-    [1, 1, 1 ],  # artist6 
-    [0, 2, 0 ],  # artist7 
-    [0, 143, 1 ],  # artist8 
-    [0, 1, 1 ],  # artist9 
+    [1, 0, 1 ],     # artist0 
+    [1, 0, 222 ],   # artist1 
+    [1, 0, 143 ],   # artist2 
+    [2, 0, 133 ],   # artist3 
+    [1, 0, 0 ],     # artist4 
+    [32, 0, 1132 ], # artist5 
+    [1, 1, 1 ],     # artist6 
+    [0, 2, 0 ],     # artist7 
+    [0, 143, 1 ],   # artist8 
+    [0, 1, 1 ],     # artist9 
 ])
 
 
 # convert to compressed sparse row matrix (csr_matrix)
 item_user_data = csr_matrix(item_user_raw)
 
-print(item_user_data)
+# print(item_user_data)
+print(plays)
+print('---')
+plays = bm25_weight(plays, 1, 0)
+print(plays)
