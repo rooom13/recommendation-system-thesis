@@ -50,7 +50,7 @@ def read_object(filename):
 fakeDataset = False 
 output_filename = 'dataset_objects.pkl'
 
-dataset_path = './test_dataset/triplets.txt' if fakeDataset else './dataset/train_triplets_MSD-AG.txt'
+dataset_path = '../test_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
 
 full_data = read_triplets(dataset_path)
 train_data = get_train_data(full_data)

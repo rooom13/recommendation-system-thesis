@@ -114,7 +114,7 @@ def main():
     lazy = not fakeDataset and True 
 
     # GO
-    dataset_path = './test_dataset/triplets.txt' if fakeDataset else './dataset/train_triplets_MSD-AG.txt'
+    dataset_path = '../test_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
 
     nbins = 200
     Nlines = p_Nlines if lazy else countLines(dataset_path)
