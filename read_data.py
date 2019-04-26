@@ -2,83 +2,85 @@ import pandas as pd
 from scipy.sparse import coo_matrix, csr_matrix
 import numpy as np
 import sys
-
-def countLines(dataset_path):
-    print('Counting lines')
-    return sum(1 for line in open(dataset_path))
+import pickle
 
 def read_triplets(dataset_path):
-    counter = 0
-    completed = 0
 
-    users = np.array([])
-    artists = np.array([])
+    triplets = pd.read_csv(dataset_path,sep='\t', names=['user','artist','plays'])
 
-    row =np.array([])
-    col =np.array([])
-    data =np.array([])
+    triplets['user'] = triplets['user'].astype("category")
+    triplets['artist'] = triplets['artist'].astype("category")
+    triplets['plays'] = triplets['plays'].astype(float) # o int
+   
+    return triplets
 
+def get_train_data(triplets, P = 0.5):
+    # p = proportion
+    msk = np.random.rand(len(triplets)) < P
+    data =  triplets[msk]
+    data['user'] = data['user'].astype("category")
+    data['artist'] = data['artist'].astype("category")
+    data['plays'] = data['plays'].astype(float)
+    return data
 
-    for chunk in pd.read_csv(dataset_path, sep='\t',header=None, chunksize=CHUNKSIZE):
-        #user and artist indices
-        readUsers = chunk.iloc[:, 0].unique()
-        users = np.unique(np.append(users, readUsers))
-        readArtists = chunk.iloc[:, 1].unique()
-        artists = np.unique(np.append(artists, readArtists))
-
-        for i, tupla in chunk.iloc[:, :].iterrows():
-            user, artist, play = tupla[0], tupla[1], tupla[2]
-            iUser, iArtist = np.where(users == user)[0][0], np.where(artists == artist)[0][0]
-            row = np.append(row,iUser)
-            col = np.append(col,iArtist)
-            data = np.append(data,play)
-        
-        # progress counter
-        counter += CHUNKSIZE
-        new_completed = int(round(float(counter)/Nlines * 100))
-        print_progress('Reading dataset... ', completed, new_completed)
-    print(' ... Done')
+def get_indexes(triplets):
+    artists_index = {}
+    users_index = {}
+    for (artistid, artistname), (userid,username) in zip( enumerate(triplets['artist'].cat.categories), enumerate(triplets['user'].cat.categories)):
+        artists_index[artistname] = artistid
+        users_index[username] = userid
+    return artistid, users_index
     
+def get_plays(triplets):
+    cols = triplets['user'].cat.codes.copy()
+    rows = triplets['artist'].cat.codes.copy()
+    data = triplets['plays'].astype(float)
+    return coo_matrix((data, (rows, cols))).T
 
-    # return users.tolist(), artists.tolist(), None
-    # return 1,2,3
-    return users.tolist(), artists.tolist(), csr_matrix( ( data, (col, row)), shape=(artists.size, users.size) )
+# Storing and readind objects
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
-def print_progress(text, completed, new_completed):
-     if (new_completed > completed): 
-            completed = new_completed
-            sys.stdout.write('\r'+text+ str(completed) + ' %' )
-            sys.stdout.flush()
+def read_object(filename):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
 
-# precoumputed 
-p_Nlines = 25701407
 
-fakeDataset = True 
-lazy = not fakeDataset and True
+fakeDataset = False 
+output_filename = 'dataset_objects.pkl'
 
 dataset_path = './test_dataset/triplets.txt' if fakeDataset else './dataset/train_triplets_MSD-AG.txt'
-CHUNKSIZE = 1000 if not fakeDataset else 2
-Nlines = countLines(dataset_path)
 
-users, artists, plays = read_triplets(dataset_path)
+full_data = read_triplets(dataset_path)
+train_data = get_train_data(full_data)
 
-# sparse matrix
-item_user_raw = np.array([
-    # 0  1  2  users
-    [1, 0, 1 ],  # artist0 
-    [1, 0, 222 ],  # artist1 
-    [1, 0, 143 ],  # artist2 
-    [2, 0, 133 ],  # artist3 
-    [1, 0, 0 ],  # artist4 
-    [32, 0, 1132 ],  # artist5 
-    [1, 1, 1 ],  # artist6 
-    [0, 2, 0 ],  # artist7 
-    [0, 143, 1 ],  # artist8 
-    [0, 1, 1 ],  # artist9 
-])
+artists_index,users_index = get_indexes(full_data)
+plays_full  = get_plays(full_data)
+plays_train = get_plays(train_data)
+
+store_path = './stored_objects/' + ('f' if fakeDataset else '')
+print(store_path)
+save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
+save_object( plays_full,  store_path + 'plays_full.pkl')
+save_object( plays_train,  store_path + 'plays_train.pkl')
 
 
-# convert to compressed sparse row matrix (csr_matrix)
-item_user_data = csr_matrix(item_user_raw)
 
-print(item_user_data)
+
+
+# item_user_raw = np.array([
+#     # 0  1  2  users
+#     [1, 0, 1 ],  # artist0 
+#     [1, 0, 222 ],  # artist1 
+#     [1, 0, 143 ],  # artist2  
+#     [2, 0, 133 ],  # artist3 
+#     [1, 0, 0 ],  # artist4 
+#     [32, 0, 1132 ],  # artist5 
+#     [1, 1, 1 ],  # artist6 
+#     [0, 2, 0 ],  # artist7 
+#     [0, 143, 1 ],  # artist8 
+#     [0, 1, 1 ],  # artist9 
+#     ])
+# item_user_data = coo_matrix(item_user_raw)
+
