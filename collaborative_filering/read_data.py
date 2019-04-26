@@ -50,7 +50,7 @@ def read_object(filename):
 fakeDataset = False 
 output_filename = 'dataset_objects.pkl'
 
-dataset_path = '../test_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
+dataset_path = '../fake_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
 
 full_data = read_triplets(dataset_path)
 train_data = get_train_data(full_data)
@@ -59,7 +59,7 @@ artists_index,users_index = get_indexes(full_data)
 plays_full  = get_plays(full_data)
 plays_train = get_plays(train_data)
 
-store_path = './stored_objects/' + ('f' if fakeDataset else '')
+store_path = './precomputed_data/' if not  fakeDataset else 'fake_precomputed_data'
 print(store_path)
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
 save_object( plays_full,  store_path + 'plays_full.pkl')
