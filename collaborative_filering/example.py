@@ -123,9 +123,6 @@ def calculate_recommendations(output_filename, model_name="als"):
     # this is actually disturbingly expensive:
     plays = plays.tocsr()
 
-    import sys
-    sys.exit() 
-
     logging.debug("training model %s", model_name)
     start = time.time()
     model.fit(plays) 

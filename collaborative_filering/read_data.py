@@ -4,6 +4,9 @@ import numpy as np
 import sys
 import pickle
 
+float_formatter = lambda x: "%.0f" % x
+np.set_printoptions(formatter={'float_kind':float_formatter})
+
 def read_triplets(dataset_path):
 
     triplets = pd.read_csv(dataset_path,sep='\t', names=['user','artist','plays'])
@@ -14,7 +17,7 @@ def read_triplets(dataset_path):
    
     return triplets
 
-def get_train_data(triplets, P = 0.5):
+def get_train_data(triplets, P = 0.85):
     # p = proportion
     msk = np.random.rand(len(triplets)) < P
     data =  triplets[msk]
@@ -29,7 +32,7 @@ def get_indexes(triplets):
     for (artistid, artistname), (userid,username) in zip( enumerate(triplets['artist'].cat.categories), enumerate(triplets['user'].cat.categories)):
         artists_index[artistname] = artistid
         users_index[username] = userid
-    return artistid, users_index
+    return artists_index, users_index
     
 def get_plays(triplets):
     cols = triplets['user'].cat.codes.copy()
@@ -47,10 +50,11 @@ def read_object(filename):
         return pickle.load(f)
 
 
-fakeDataset = False 
+fakeDataset = False
 output_filename = 'dataset_objects.pkl'
 
 dataset_path = '../fake_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
+
 
 full_data = read_triplets(dataset_path)
 train_data = get_train_data(full_data)
@@ -59,9 +63,11 @@ artists_index,users_index = get_indexes(full_data)
 plays_full  = get_plays(full_data)
 plays_train = get_plays(train_data)
 
-store_path = './precomputed_data/' if not  fakeDataset else 'fake_precomputed_data'
-print(store_path)
+store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
+
+
+
 save_object( plays_full,  store_path + 'plays_full.pkl')
 save_object( plays_train,  store_path + 'plays_train.pkl')
 
