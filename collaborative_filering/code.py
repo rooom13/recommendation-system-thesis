@@ -1,5 +1,5 @@
 import pickle
-from implicit.als import AlternatingLeastSquares
+import implicit
 from scipy.sparse import coo_matrix, csr_matrix
 from numpy import array
 import numpy as np
@@ -32,16 +32,21 @@ fakeDataset = True
 # load data from pickle files
 artist_indices, user_indices , plays_full, plays_train = load_data()
 
+# rows are items, cols ar users
+plays_train = plays_train.T
 
-plays_train = plays_train.tocsr().T
-print(plays_train)
-model = AlternatingLeastSquares
+
+print(plays_train.toarray() )
+
+# Instantiate model
+model = implicit.als.AlternatingLeastSquares(factors=20)
 model.fit(plays_train)
 
-
-for userid, username in enumerate(artist_indices):
-    # write recommendation
-    print(userid, username)
+user_plays = plays_train.T.tocsr()
+print(model.recommend(0,user_plays))
+# for userid, username in enumerate(user_indices):
+#     # write recommendation
+#     print(userid, username)
 
 
 
