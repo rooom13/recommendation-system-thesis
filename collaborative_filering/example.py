@@ -57,7 +57,7 @@ def calculate_similar_artists(output_filename, model_name="als"):
     api of the models """
     artists, users, plays = get_lastfm()
 
-
+    print(plays)
 
     # create a model from the input data
     model = get_model(model_name)
@@ -104,8 +104,10 @@ def calculate_recommendations(output_filename, model_name="als"):
     """ Generates artist recommendations for each user in the dataset """
     # train the model based off input params
     artists, users, plays = get_lastfm()
+    print(plays.shape)
+    print('artists',len(artists))
+    print('users',len(users))
 
-    print(artists)
 
     # create a model from the input data
     model = get_model(model_name)
@@ -123,17 +125,18 @@ def calculate_recommendations(output_filename, model_name="als"):
     # this is actually disturbingly expensive:
     plays = plays.tocsr()
 
-    import sys
-    sys.exit() 
+
 
     logging.debug("training model %s", model_name)
     start = time.time()
-    model.fit(plays) 
+    # model.fit(plays) 
     logging.debug("trained model '%s' in %0.2fs", model_name, time.time() - start)
 
     # generate recommendations for each user and write out to a file
     start = time.time()
     user_plays = plays.T.tocsr()
+    print(user_plays.shape)
+    return
     with tqdm.tqdm(total=len(users)) as progress:
         with codecs.open(output_filename, "w", "utf8") as o:
             for userid, username in enumerate(users):
