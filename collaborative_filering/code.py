@@ -1,8 +1,10 @@
 import pickle
 import implicit
+from implicit.nearest_neighbours import bm25_weight
 from scipy.sparse import coo_matrix, csr_matrix
 from numpy import array
 import numpy as np
+import sys
 
 # Just for a prettier matrix print
 float_formatter = lambda x: "%.2f" % x
@@ -32,21 +34,32 @@ fakeDataset = True
 # load data from pickle files
 artist_indices, user_indices , plays_full, plays_train = load_data()
 
+# normalize plays matrixes
+
+print(plays_full)
+
+plays_full = bm25_weight(plays_full, K1=100, B=0.8)
+plays_train = bm25_weight(plays_train, K1=100, B=0.8)
+
+print(plays_full)
+
+sys.exit()
 # rows are items, cols ar users
 plays_train = plays_train.T
+user_plays = plays_train.T.tocsr()
 
 
-print(plays_train.toarray() )
 
 # Instantiate model
 model = implicit.als.AlternatingLeastSquares(factors=20)
 model.fit(plays_train)
 
-user_plays = plays_train.T.tocsr()
-print(model.recommend(0,user_plays))
-# for userid, username in enumerate(user_indices):
-#     # write recommendation
-#     print(userid, username)
+
+artists= [artistname for  artist_id, artistname in enumerate(artist_indices)]
+
+for userid, username in enumerate(user_indices):
+        for artistid, score in model.recommend(userid,user_plays):
+                print(username + '\t' + artists[artistid] + '\t' + str(score))
 
 
 

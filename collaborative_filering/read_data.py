@@ -29,9 +29,14 @@ def get_train_data(triplets, P = 0.85):
 def get_indexes(triplets):
     artists_index = {}
     users_index = {}
-    for (artistid, artistname), (userid,username) in zip( enumerate(triplets['artist'].cat.categories), enumerate(triplets['user'].cat.categories)):
+
+
+    for (artistid, artistname) in  enumerate(triplets['artist'].cat.categories):
         artists_index[artistname] = artistid
+    
+    for (userid,username) in enumerate(triplets['user'].cat.categories):
         users_index[username] = userid
+    
     return artists_index, users_index
     
 def get_plays(triplets):
@@ -50,7 +55,7 @@ def read_object(filename):
         return pickle.load(f)
 
 
-fakeDataset = False
+fakeDataset = True
 output_filename = 'dataset_objects.pkl'
 
 dataset_path = '../fake_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
@@ -64,6 +69,9 @@ plays_full  = get_plays(full_data)
 plays_train = get_plays(train_data)
 
 store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
+
+print(artists_index)
+print(users_index)
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
 
 
