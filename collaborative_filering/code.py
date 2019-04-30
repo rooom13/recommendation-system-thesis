@@ -43,10 +43,17 @@ model = implicit.als.AlternatingLeastSquares(factors=20)
 model.fit(plays_train)
 
 user_plays = plays_train.T.tocsr()
-print(model.recommend(0,user_plays))
-# for userid, username in enumerate(user_indices):
-#     # write recommendation
-#     print(userid, username)
+
+artists = enumerate(artist_indices)
+print(artist_indices)
+
+for userid, username in enumerate(['papapa', 'pepepe', 'pipip']):
+        print(userid, username)
+        for artistid, score in model.recommend(0,user_plays):
+                ""
+                # print('user', str(userid) + ' ' + username, end="\t - \t")
+                # print('artist', str(artistid) + ' ' artist_indices[artistid] + ' -> ' + str(score))
+                # print(artistid)
 
 
 
