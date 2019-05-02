@@ -3,8 +3,9 @@ from scipy.sparse import coo_matrix, csr_matrix
 import numpy as np
 import sys
 import pickle
+from sklearn.preprocessing import normalize
 
-float_formatter = lambda x: "%.0f" % x
+float_formatter = lambda x: "%.4f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
 def read_triplets(dataset_path):
@@ -54,7 +55,8 @@ def read_object(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-
+def scale(plays):
+       return normalize(plays)
 fakeDataset = True
 output_filename = 'dataset_objects.pkl'
 
@@ -70,14 +72,27 @@ plays_train = get_plays(train_data)
 
 store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
 
-print(artists_index)
-print(users_index)
+
+norm_plays_full = scale(plays_full)
+norm_plays_train = scale(plays_train)
+
+print('Plays full raw:')
+print(plays_full.toarray().T)
+print('Plays full normalized:')
+print(norm_plays_full.toarray().T)
+print('Plays train raw:')
+print(plays_train.toarray().T)
+print('Plays train normalized:')
+print(norm_plays_train.toarray().T)
+
+
+
+
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
-
-
-
 save_object( plays_full,  store_path + 'plays_full.pkl')
 save_object( plays_train,  store_path + 'plays_train.pkl')
+
+
 
 
 
