@@ -6,6 +6,8 @@ from numpy import array
 import numpy as np
 import sys
 
+# sklearn caching bug
+sys.exit()
 # Just for a prettier matrix print
 float_formatter = lambda x: "%.2f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})

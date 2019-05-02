@@ -5,9 +5,9 @@ import sys
 import pickle
 from sklearn.preprocessing import normalize
 
+
 float_formatter = lambda x: "%.4f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
-
 def read_triplets(dataset_path):
 
     triplets = pd.read_csv(dataset_path,sep='\t', names=['user','artist','plays'])
@@ -76,19 +76,17 @@ store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_
 norm_plays_full = scale(plays_full)
 norm_plays_train = scale(plays_train)
 
-sys.exit()
 
-print('Plays full raw:')
+"""print('Plays full raw:')
 print(plays_full.toarray().T)
 print('Plays full normalized:')
 print(norm_plays_full.toarray().T)
 print('Plays train raw:')
 print(plays_train.toarray().T)
 print('Plays train normalized:')
-print(norm_plays_train.toarray().T)
+print(norm_plays_train.toarray().T)"""
 
 
-print(44)
 
 # save objects to cache them
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
