@@ -76,6 +76,8 @@ store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_
 norm_plays_full = scale(plays_full)
 norm_plays_train = scale(plays_train)
 
+sys.exit()
+
 print('Plays full raw:')
 print(plays_full.toarray().T)
 print('Plays full normalized:')
@@ -86,11 +88,14 @@ print('Plays train normalized:')
 print(norm_plays_train.toarray().T)
 
 
+print(44)
 
-
+# save objects to cache them
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
 save_object( plays_full,  store_path + 'plays_full.pkl')
+save_object( norm_plays_full,  store_path + 'norm_plays_full.pkl')
 save_object( plays_train,  store_path + 'plays_train.pkl')
+save_object( norm_plays_train,  store_path + 'norm_plays_train.pkl')
 
 
 

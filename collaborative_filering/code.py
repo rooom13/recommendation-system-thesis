@@ -45,7 +45,6 @@ plays_train = bm25_weight(plays_train, K1=100, B=0.8)
 plays_train = plays_train.T
 user_plays = plays_train.T.tocsr()
 
-print(1223)
 
 # Instantiate model
 model = implicit.als.AlternatingLeastSquares(factors=20)
