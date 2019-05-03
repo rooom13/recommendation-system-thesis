@@ -6,8 +6,6 @@ from numpy import array
 import numpy as np
 import sys
 
-# sklearn caching bug
-sys.exit()
 # Just for a prettier matrix print
 float_formatter = lambda x: "%.2f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
@@ -21,8 +19,8 @@ def read_object(filename):
 def load_data():
     precomputed_path =  './fake_precomputed_data' if fakeDataset else './precomputed_data' 
     artist_user_path = precomputed_path + '/artist_user_indexes.pkl'
-    plays_full_path = precomputed_path + '/plays_full.pkl'
-    plays_train_path = precomputed_path + '/plays_train.pkl'
+    plays_full_path = precomputed_path + '/norm_plays_full.pkl'
+    plays_train_path = precomputed_path + '/norm_plays_train.pkl'
 
     artist_indices, user_indices = read_object(artist_user_path)
     plays_full = read_object(plays_full_path)
@@ -33,17 +31,15 @@ def load_data():
 
 fakeDataset = True
 
-# load data from pickle files
+# load normalized data from pickle files
 artist_indices, user_indices , plays_full, plays_train = load_data()
 
 # normalize plays matrixes
+# plays_full = bm25_weight(plays_full, K1=100, B=0.8)
+# plays_train = bm25_weight(plays_train, K1=100, B=0.8)
 
 
-plays_full = bm25_weight(plays_full, K1=100, B=0.8)
-plays_train = bm25_weight(plays_train, K1=100, B=0.8)
-
-
-# rows are items, cols ar users
+# rows = items, cols = users
 plays_train = plays_train.T
 user_plays = plays_train.T.tocsr()
 
