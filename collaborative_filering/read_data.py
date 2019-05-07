@@ -56,7 +56,7 @@ def read_object(filename):
         return pickle.load(f)
 
 def scale(plays):
-       return normalize(plays)
+       return normalize(plays) * 1000
 fakeDataset = True
 output_filename = 'dataset_objects.pkl'
 
@@ -77,14 +77,14 @@ norm_plays_full = scale(plays_full)
 norm_plays_train = scale(plays_train)
 
 
-"""print('Plays full raw:')
+print('Plays full raw:')
 print(plays_full.toarray().T)
 print('Plays full normalized:')
 print(norm_plays_full.toarray().T)
 print('Plays train raw:')
 print(plays_train.toarray().T)
 print('Plays train normalized:')
-print(norm_plays_train.toarray().T)"""
+print(norm_plays_train.toarray().T)
 
 
 
