@@ -21,6 +21,7 @@ def read_triplets(dataset_path):
 def get_train_data(triplets, P = 0.85):
     # p = proportion
     msk = np.random.rand(len(triplets)) < P
+
     data =  triplets[msk]
     data['user'] = data['user'].astype("category")
     data['artist'] = data['artist'].astype("category")
@@ -79,12 +80,12 @@ norm_plays_train = scale(plays_train)
 
 print('Plays full raw:')
 print(plays_full.toarray().T)
-print('Plays full normalized:')
-print(norm_plays_full.toarray().T)
+# print('Plays full normalized:')
+# print(norm_plays_full.toarray().T)
 print('Plays train raw:')
 print(plays_train.toarray().T)
-print('Plays train normalized:')
-print(norm_plays_train.toarray().T)
+# print('Plays train normalized:')
+# print(norm_plays_train.toarray().T)
 
 
 

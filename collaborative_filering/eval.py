@@ -10,6 +10,12 @@ import sys
 float_formatter = lambda x: "%.2f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
+
+# Storing and readind objects
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+
 # load .pkl object
 def read_object(filename):
     with open(filename, 'rb') as f:
@@ -34,27 +40,47 @@ fakeDataset = True
 # load normalized data from pickle files
 artist_indices, user_indices , plays_full, plays_train = load_data()
 
-# normalize plays matrixes
-# plays_full = bm25_weight(plays_full, K1=100, B=0.8)
-# plays_train = bm25_weight(plays_train, K1=100, B=0.8)
+
 
 
 # rows = items, cols = users
-plays_train = plays_train.T
+plays_trainT = plays_train.T
 user_plays = plays_train.T.tocsr()
+
+lazy = True
 
 
 # Instantiate model
-model = implicit.als.AlternatingLeastSquares(factors=20)
-model.fit(plays_train)
+if not lazy:
+        model = implicit.als.AlternatingLeastSquares(factors=20)
+        model.fit(plays_trainT)
+        save_object(model, './fake_precomputed_data/model.pkl')
+else:
+        model = read_object('./fake_precomputed_data/model.pkl')
+
 
 
 artists= [artistname for  artist_id, artistname in enumerate(artist_indices)]
 
-for userid, username in enumerate(user_indices):
-        for artistid, score in model.recommend(userid,user_plays):
-                print(username + '\t' + artists[artistid] + '\t' + str(score))
+# print(plays_full.toarray().T)
+# print(plays_train.toarray().T)
 
+# METRICS 
+# Root Mean Squared Error
+# RMSE
+
+
+NUSERS,NARTISTS = plays_full.shape
+
+for user_index in range(0,NUSERS):
+        nonzero_artists =plays_full[user_index,:].nonzero()[1]
+        for artist_index in  nonzero_artists:
+                full_value, train_value =  plays_full[user_index,artist_index], plays_train[user_index,artist_index]
+                if(train_value == 0):
+                        print((user_index,artist_index), '-', (full_value,train_value) )
+                        #  ? predicted_value = model.recommend(user_index, item_index) ?
+                        # Compute RMSE 
+                        # print(model.recommend(user_index, user_plays, N=2, ))
 
 
 
