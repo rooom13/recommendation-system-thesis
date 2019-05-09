@@ -1,0 +1,40 @@
+CG Cumulative Gain:
+    Suma de relevancias de los resultados.
+    CG = SUM(rel_i)
+
+DCG Discounted Cumulative Gain:
+    Suma de relevancia de los resultados entre logaritmo de la posición
+    SUM (rel_i / log2(i+  1))
+    
+    SUM (2^rel_i - 1 /    log2(i+  1) )
+
+NCDG Normalized Discounted Cumulative Gain:
+
+    Ranking size puede variar.
+
+    Ordenar todos los documentos relevantes del corpus, por su relevancia relativa
+?????    Ideal DCG IDCG cogida del evaluation
+
+    nDCG = DCG / IDCG
+
+????    Cuál es la relevancia? El valor de Plays de full?
+
+
+???? Para cada usuario? Al final se calcula la media?
+
+
+USAR LOS TEST SET 
+
+
+Precision y recall --> Concepto de True Positive? Recomendado y usado? me quedo con los 10 primeros top 10 de ground truth
+                   --> Dado el ranking de cada usuario, como determino la 
+
+Mean Reciprocal Rank
+
+Mean Average Precision
+
+
+
+NLTK = tokenización TFIDF
+SPICY SPEICY
+stanford nlp
