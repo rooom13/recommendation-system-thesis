@@ -1,15 +1,23 @@
 import pickle
 import implicit
-from implicit.nearest_neighbours import bm25_weight
 from scipy.sparse import coo_matrix, csr_matrix
 from numpy import array
 import numpy as np
 import sys
+import time
+import metrics
+
 
 # Just for a prettier matrix print
 float_formatter = lambda x: "%.2f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
+
+def print_progress(text, completed, new_completed):
+     if (new_completed > completed): 
+            completed = new_completed
+            sys.stdout.write('\r'+text+ str(completed) + ' %' )
+            sys.stdout.flush()
 
 # Storing and readind objects
 def save_object(obj, filename):
@@ -23,7 +31,7 @@ def read_object(filename):
 
 # load user_indices, artist_indices, plays 
 def load_data():
-    precomputed_path =  './fake_precomputed_data' if fakeDataset else './precomputed_data' 
+     
     artist_user_path = precomputed_path + '/artist_user_indexes.pkl'
     plays_full_path = precomputed_path + '/norm_plays_full.pkl'
     plays_train_path = precomputed_path + '/norm_plays_train.pkl'
@@ -35,55 +43,65 @@ def load_data():
     return artist_indices, user_indices , plays_full, plays_train
 
 
-fakeDataset = True
+def get_NDCG_list(k=5):
+        ndcg_list = []
+        completed = 0
+        new_completed = 0
+        for user_id in range(0,NUSERS):
+                new_completed = (user_id +1)/ (NUSERS) * 100
+                
+                print_progress('Evaluating NDCG k=' + str(k) + '...  ', completed ,new_completed  )
+                sr_rank = model.recommend(user_id, plays_train ) 
+                scores = []
+                for artist_id, x in sr_rank:
+                        ground_truth = plays_full[user_id,artist_id]
+                        if ground_truth != 0:
+                                scores.append(ground_truth)
+                ndcg_list.append(metrics.ndcg_at_k(scores, k))
+        print(' ... completed', end='\n')
+        return ndcg_list
+
+# __MAIN__
+fakeDataset = False
+precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
 
 # load normalized data from pickle files
 artist_indices, user_indices , plays_full, plays_train = load_data()
-
-
+NUSERS,NARTISTS = plays_full.shape
 
 
 # rows = items, cols = users
-plays_trainT = plays_train.T
 user_plays = plays_train.T.tocsr()
 
-lazy = True
-
-
-# Instantiate model
+lazy = False and not fakeDataset
+# Instantiate model or reuse cached
 if not lazy:
         model = implicit.als.AlternatingLeastSquares(factors=20)
-        model.fit(plays_trainT)
-        save_object(model, './fake_precomputed_data/model.pkl')
+        model.fit(plays_train.T)
+        save_object(model, precomputed_path + 'model.pkl')
 else:
-        model = read_object('./fake_precomputed_data/model.pkl')
+        model = read_object(precomputed_path +'model.pkl')
 
 
 
-artists= [artistname for  artist_id, artistname in enumerate(artist_indices)]
 
 # print(plays_full.toarray().T)
 # print(plays_train.toarray().T)
 
-# METRICS 
-# Root Mean Squared Error
-# RMSE
+# METRICS NDCG
 
 
-NUSERS,NARTISTS = plays_full.shape
+kk = [5,10,15]
+for k in kk:
+        NDCG_list = get_NDCG_list(k=k)
+        print('NDCG_list_' + str(k),NDCG_list)
+        save_object(NDCG_list,precomputed_path+'ndcg_'+str(k)+'.pkl')
 
-for user_index in range(0,NUSERS):
-        nonzero_artists =plays_full[user_index,:].nonzero()[1]
-        for artist_index in  nonzero_artists:
-                full_value, train_value =  plays_full[user_index,artist_index], plays_train[user_index,artist_index]
-                if(train_value == 0):
-                        print((user_index,artist_index), '-', (full_value,train_value) )
-                        #  ? predicted_value = model.recommend(user_index, item_index) ?
-                        # Compute RMSE 
-                        # print(model.recommend(user_index, user_plays, N=2, ))
+
 
 
 
 # user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=20, regularization = 0.1, iterations = 50)
+# artists= [artistname for  artist_id, artistname in enumerate(artist_indices)]
 
 

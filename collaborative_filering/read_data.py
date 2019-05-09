@@ -9,7 +9,7 @@ from sklearn.preprocessing import normalize
 float_formatter = lambda x: "%.4f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
 def read_triplets(dataset_path):
-
+    print('reading triplets')
     triplets = pd.read_csv(dataset_path,sep='\t', names=['user','artist','plays'])
 
     triplets['user'] = triplets['user'].astype("category")
@@ -20,6 +20,7 @@ def read_triplets(dataset_path):
 
 def get_train_data(triplets, P = 0.85):
     # p = proportion
+    print('obtaining training set')
     msk = np.random.rand(len(triplets)) < P
 
     data =  triplets[msk]
@@ -29,6 +30,7 @@ def get_train_data(triplets, P = 0.85):
     return data
 
 def get_indexes(triplets):
+    print('obtaining indexes')
     artists_index = {}
     users_index = {}
 
@@ -58,10 +60,11 @@ def read_object(filename):
 
 def scale(plays):
        return normalize(plays) * 1000
-fakeDataset = True
+fakeDataset = False
 output_filename = 'dataset_objects.pkl'
 
 dataset_path = '../fake_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
+store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
 
 
 full_data = read_triplets(dataset_path)
@@ -71,49 +74,19 @@ artists_index,users_index = get_indexes(full_data)
 plays_full  = get_plays(full_data)
 plays_train = get_plays(train_data)
 
-store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
 
-
-norm_plays_full = scale(plays_full)
-norm_plays_train = scale(plays_train)
-
-
-print('Plays full raw:')
-print(plays_full.toarray().T)
-# print('Plays full normalized:')
-# print(norm_plays_full.toarray().T)
-print('Plays train raw:')
-print(plays_train.toarray().T)
-# print('Plays train normalized:')
-# print(norm_plays_train.toarray().T)
+print('casi')
+# norm_plays_full = scale(plays_full)
+# norm_plays_train = scale(plays_train)
 
 
 
 # save objects to cache them
 save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
 save_object( plays_full,  store_path + 'plays_full.pkl')
-save_object( norm_plays_full,  store_path + 'norm_plays_full.pkl')
+# save_object( norm_plays_full,  store_path + 'norm_plays_full.pkl')
 save_object( plays_train,  store_path + 'plays_train.pkl')
-save_object( norm_plays_train,  store_path + 'norm_plays_train.pkl')
+# save_object( norm_plays_train,  store_path + 'norm_plays_train.pkl')
 
-
-
-
-
-
-
-# item_user_raw = np.array([
-#     # 0  1  2  users
-#     [1, 0, 1 ],  # artist0 
-#     [1, 0, 222 ],  # artist1 
-#     [1, 0, 143 ],  # artist2  
-#     [2, 0, 133 ],  # artist3 
-#     [1, 0, 0 ],  # artist4 
-#     [32, 0, 1132 ],  # artist5 
-#     [1, 1, 1 ],  # artist6 
-#     [0, 2, 0 ],  # artist7 
-#     [0, 143, 1 ],  # artist8 
-#     [0, 1, 1 ],  # artist9 
-#     ])
-# item_user_data = coo_matrix(item_user_raw)
+print('End')
 
