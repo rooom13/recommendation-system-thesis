@@ -10,5 +10,5 @@ fakeDataset = False
 # scale_data(fakeDataset)
 # generate_model(fakeDataset)
 
-evaluate_ndcg(fakeDataset)
+# evaluate_ndcg(fakeDataset)
 evaluate_precision(fakeDataset)

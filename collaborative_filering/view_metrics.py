@@ -11,12 +11,12 @@ def read_object(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-def print_histogram(x,k):
+def print_histogram(x, title='Histogram',xlabel='score', ylabel='# users' ):
         num_bins = 10
         n, bins, patches = plt.hist(x, num_bins)
-        plt.xlabel('nDCG score')
-        plt.ylabel('user frequency')
-        plt.title('Histogram of nDCG for k='+k)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.title(title)
         plt.grid(True)
         plt.yscale('log')
         plt.show()
@@ -25,12 +25,23 @@ def print_histogram(x,k):
 storePath = './precomputed_data/' 
 
 
-ndcg_k5 = read_object(storePath + 'ndcg_5.pkl')
 ndcg_k10 = read_object(storePath + 'ndcg_10.pkl')
-ndcg_k15 = read_object(storePath + 'ndcg_15.pkl')
+ndcg_k100 = read_object(storePath + 'ndcg_100.pkl')
+ndcg_k500 = read_object(storePath + 'ndcg_500.pkl')
 
-kk = {'5': ndcg_k5, '10': ndcg_k10, '15': ndcg_k15}
+precision_k5 = read_object(storePath + 'precision_5.pkl')
+precision_k10 = read_object(storePath + 'precision_10.pkl')
+precision_k100 = read_object(storePath + 'precision_100.pkl')
+precision_k500 = read_object(storePath + 'precision_500.pkl')
 
-for k, data in kk.items():
-        print(k)
-        print_histogram(data, k)
+ndcg_kk = {'10': ndcg_k10, '100': ndcg_k100, '500': ndcg_k500}
+precision_kk = {'10': precision_k10, '100': precision_k100, '500': precision_k500}
+
+# for k, data in ndcg_kk.items():
+#         # print(k)
+#         print_histogram(data,title='Histogram of nDCG k=' +  k)
+
+print_histogram(precision_k5,title='Histogram of precision k=5')
+# for k, data in precision_kk.items():
+        # print(k)
+        # print_histogram(data,title='Histogram of precision k=' +  k)
