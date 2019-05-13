@@ -25,23 +25,23 @@ def print_histogram(x, title='Histogram',xlabel='score', ylabel='# users' ):
 storePath = './precomputed_data/' 
 
 
-ndcg_k10 = read_object(storePath + 'ndcg_10.pkl')
-ndcg_k100 = read_object(storePath + 'ndcg_100.pkl')
-ndcg_k500 = read_object(storePath + 'ndcg_500.pkl')
+# ndcg_k10 = read_object(storePath + 'ndcg_10.pkl')
+# ndcg_k100 = read_object(storePath + 'ndcg_100.pkl')
+# ndcg_k500 = read_object(storePath + 'ndcg_500.pkl')
 
-precision_k5 = read_object(storePath + 'precision_5.pkl')
+# precision_k5 = read_object(storePath + 'precision_5.pkl')
 precision_k10 = read_object(storePath + 'precision_10.pkl')
-precision_k100 = read_object(storePath + 'precision_100.pkl')
-precision_k500 = read_object(storePath + 'precision_500.pkl')
+# precision_k100 = read_object(storePath + 'precision_100.pkl')
+# precision_k500 = read_object(storePath + 'precision_500.pkl')
 
-ndcg_kk = {'10': ndcg_k10, '100': ndcg_k100, '500': ndcg_k500}
-precision_kk = {'10': precision_k10, '100': precision_k100, '500': precision_k500}
+# ndcg_kk = {'10': ndcg_k10, '100': ndcg_k100, '500': ndcg_k500}
+# precision_kk = {'10': precision_k10, '100': precision_k100, '500': precision_k500}
 
 # for k, data in ndcg_kk.items():
 #         # print(k)
 #         print_histogram(data,title='Histogram of nDCG k=' +  k)
 
-print_histogram(precision_k5,title='Histogram of precision k=5')
+print_histogram(precision_k10,title='Histogram of precision k=10')
 # for k, data in precision_kk.items():
         # print(k)
         # print_histogram(data,title='Histogram of precision k=' +  k)

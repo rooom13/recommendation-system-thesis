@@ -8,7 +8,7 @@ fakeDataset = False
 
 # read_data(fakeDataset)
 # scale_data(fakeDataset)
-# generate_model(fakeDataset)
+generate_model(fakeDataset)
 
-# evaluate_ndcg(fakeDataset)
 evaluate_precision(fakeDataset)
+evaluate_ndcg(fakeDataset)

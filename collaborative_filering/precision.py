@@ -57,9 +57,8 @@ def get_precision_list( plays_full, plays_train,model, k=5):
                 # for each recommended artist
                 for artist_id, x in sr_rank:
                         ground_truth = plays_full[user_id,artist_id]
-                        print(artist_id,ground_truth)
                         # if its ground truth is rellevant ( # plays > 0 ) add relevant (1) else non-relevant (0)
-                        if ground_truth > 1:
+                        if ground_truth > 0:
                                 rellevants.append(1)
                         else:
                                 rellevants.append(0)
@@ -74,9 +73,7 @@ def evaluate_precision(fakeDataset):
         # load normalized data from pickle files
         plays_full, plays_train,model = load_data(precomputed_path)
 
-        kk = [5]
-        # kk = [500]
+        kk = [10,100,500]
         for k in kk:
                 precision_list = get_precision_list( plays_full, plays_train,model,k=k)
                 save_object(precision_list,precomputed_path+'precision_'+str(k)+'.pkl')
-
