@@ -26,7 +26,6 @@ def generate_model(fakeDataset):
     model = implicit.als.AlternatingLeastSquares(factors=100, iterations=50)
     model.fit(plays_train.T)
     save_object(model, precomputed_path + 'model.pkl')
-    # user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=20, regularization = 0.1, iterations = 50)
-    # artists= [artistname for  artist_id, artistname in enumerate(artist_indices)]
-
+    user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=20, regularization = 0.1, iterations = 50)
+    print(user_vecs_reg.T ) # * item_vecs_reg)
 
