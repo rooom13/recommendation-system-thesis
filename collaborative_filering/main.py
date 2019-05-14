@@ -4,7 +4,7 @@ from process_data.generate_model import generate_model
 
 from evaluate import evaluate
 from precision import evaluate_precision
-fakeDataset = False
+fakeDataset = True
 
 # read_data(fakeDataset)
 # scale_data(fakeDataset)

@@ -92,7 +92,7 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
          
 
         print(' ... completed', end='\n')
-        return ndcg_list, precision_list, mrr_list,rnd_baseline_list
+        return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list
 
 def evaluate(fakeDataset):
 
