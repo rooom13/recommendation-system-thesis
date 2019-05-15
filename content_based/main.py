@@ -1,5 +1,6 @@
 from process_data.bios_to_table import bios_to_table
+import sys
 
-fakeDataset = False
+fakeDataset = True
 
 bios_to_table(fakeDataset)

@@ -22,7 +22,6 @@ def bios_to_table(fakeDataset):
 
     i = 0
     completed =0
-    new_completed =0
     print('Reading ' +str(len(bios))+ ' bios...')
 
     for artistid in bios:
@@ -31,3 +30,4 @@ def bios_to_table(fakeDataset):
         with open(artistid) as ff:
 
             f.write(artistid.replace(bios_path,'')[:-4] + '\t'+ff.read().replace('\n','').replace('\t','')+'\n')
+    print(" Done")
