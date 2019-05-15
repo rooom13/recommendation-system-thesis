@@ -23,8 +23,6 @@ def print_progress(text, completed, new_completed):
 
 # load user_indices, artist_indices, plays 
 def load_data(precomputed_path):
-    print('hello')
-
     print('Loading data...')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
@@ -88,20 +86,24 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
                 precision_list.append(sum(relevants)/k)
                 mrr_list.append(metrics.mean_reciprocal_rank(relevants))
                 rnd_baseline_list.append(metrics.precision_at_k(rnd_baseline_relevants, k))
-                upper_bound_list.append(upper_bound/k)
+                
+                upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
          
 
         print(' ... completed', end='\n')
         return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list
 
-def evaluate(fakeDataset):
+def evaluate(fakeDataset,kk=[10,100,200]):
 
         precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
 
         # load normalized data from pickle files
         plays_full,norm_plays_full, norm_plays_train,model = load_data(precomputed_path)
 
-        kk = [10]
+        print('-')
+        print(plays_full.T.toarray())
+
+
         for k in kk:
                 ndcg_list, precision_list, mrr_list, rnd_baseline_list, upper_bound_list = get_scores( plays_full, norm_plays_full, norm_plays_train,model,k=k)
                 

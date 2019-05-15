@@ -1,6 +1,7 @@
 
 import matplotlib.pyplot as plt
 from ReadSave import * 
+import sys
 
 
 def print_histogram(x,bins=20, title='Histogram',xlabel='score', ylabel='# users' ):
@@ -15,24 +16,46 @@ def print_histogram(x,bins=20, title='Histogram',xlabel='score', ylabel='# users
 def avg(d):
         return sum(d)/len(d)
         
+def view_metrics(fakeDataset,kk=[10,100,200], showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
-storePath = './precomputed_data/' 
-
-
-kk= [5,10,100]
-
-for k in kk:
-        precisions = read_object(storePath + 'precision_list_'+ str(k) +'.pkl')
-        prec_avg = round(avg(precisions),4)
-        print_histogram(precisions,bins=25,title='Histogram Precision@'+str(k)+' avg=' + str(prec_avg),xlabel='score', ylabel='# users')
+        storePath = './precomputed_data/' if not fakeDataset else './fake_precomputed_data/'
         
-        mrrs = read_object(storePath + 'mrr_list_'+ str(k) +'.pkl')
-        mrrs_avg = round(avg(mrrs),4)
-        print_histogram(mrrs,bins=25,title='Histogram MRR@'+str(k)+ ' avg='+str(mrrs_avg),xlabel='score', ylabel='# users')
-        
-        ndgcs = read_object(storePath + 'ndcg_list_'+ str(k) +'.pkl')
-        ndcg_avg = round(avg(ndgcs),4)
-        print_histogram(ndgcs,bins=25,title='Histogram ndcg@'+str(k)+' avg='+str(ndcg_avg),xlabel='score', ylabel='# users')
+
+        for k in kk:
+                print('k='+str(k))
+                if (showPrecision):
+                
+                        precisions = read_object(storePath + 'precision_list_'+ str(k) +'.pkl')
+                        randomBaselines = read_object(storePath + 'rnd_baseline_list_'+ str(k) +'.pkl')
+                        upperBounds = read_object(storePath + 'upper_bound_list_'+ str(k) +'.pkl')
+                        
+                        prec_avg = round(avg(precisions),4)
+                        rnd_baseline = avg(randomBaselines)
+                        upper_bound = round(avg(upperBounds),4)
+
+                        print('\t- precision:\t'+str(prec_avg))
+                        print('\trnd_baseline:\t'+str(rnd_baseline))
+                        print(upperBounds)
+                        print('\tupper_bound:\t'+str(upper_bound))
+
+                        if showPlots:
+                                print_histogram(precisions,bins=25,title='Histogram Precision@' + ' μ=' + str(prec_avg),xlabel='score', ylabel='# users')
+                
+                if (showMrr):
+                        mrrs = read_object(storePath + 'mrr_list_'+ str(k) +'.pkl')
+                        mrrs_avg = round(avg(mrrs),4)
+
+                        print('\t- MRR:\t'+str(mrrs_avg))
+                        
+                        if showPlots:
+                                print_histogram(mrrs,bins=25,title='Histogram MRR@'+str(k)+ ' avg='+str(mrrs_avg),xlabel='score', ylabel='# users')
+                
+                if (showNdcg):
+                        ndgcs = read_object(storePath + 'ndcg_list_'+ str(k) +'.pkl')
+                        ndcg_avg = round(avg(ndgcs),4)
+                        print('\t- nDCG:\t'+str(ndcg_avg))
+                        if showPlots:                
+                                print_histogram(ndgcs,bins=25,title='Histogram ndcg@'+str(k)+' avg='+str(ndcg_avg),xlabel='score', ylabel='# users')
 
 
 
