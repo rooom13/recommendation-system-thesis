@@ -23,17 +23,17 @@ def print_progress(text, completed, new_completed):
 
 # load user_indices, artist_indices, plays 
 def load_data(precomputed_path):
-    print('Loading data...')
+    print('Evaluation started, loading data...', end='')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
     norm_plays_train_path = precomputed_path + 'norm_plays_train.pkl'
     model_path = precomputed_path + 'model.pkl'
  
-    print('1/4')
+    print('1/4',end='...')
     plays_full = read_object(plays_full_path).tocsr()
-    print('2/4')
+    print('2/4', end='...')
     norm_plays_full = read_object(norm_plays_full_path)
-    print('3/4')
+    print('3/4', end='...')
     norm_plays_train = read_object(norm_plays_train_path)
     model = read_object(model_path)
     print('4/4')
@@ -55,7 +55,7 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
         new_completed = 0
         for user_id in range(0,NUSERS):
                 new_completed = (user_id +1)/ (NUSERS) * 100
-                print_progress('Evaluating k=' + str(k) + '...  ', completed ,new_completed  )
+                print_progress('\tEvaluating k=' + str(k) + '\t  ', completed ,new_completed  )
                 
                 sr_rank = model.recommend(user_id, norm_plays_train,N=k ) 
                 rnd_rank = np.round(np.random.rand(k))*(NARTISTS-1)
@@ -90,26 +90,24 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
                 upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
          
 
-        print(' ... completed', end='\n')
+        print(' ...completed', end='\n')
         return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list
 
 def evaluate(fakeDataset,kk=[10,100,200]):
 
         precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
-
+        result_metrics_path = precomputed_path + 'metrics_result/'
         # load normalized data from pickle files
         plays_full,norm_plays_full, norm_plays_train,model = load_data(precomputed_path)
 
-        print('-')
-        print(plays_full.T.toarray())
 
 
         for k in kk:
                 ndcg_list, precision_list, mrr_list, rnd_baseline_list, upper_bound_list = get_scores( plays_full, norm_plays_full, norm_plays_train,model,k=k)
                 
-                save_object(ndcg_list,precomputed_path+'ndcg_list_'+str(k)+'.pkl')
-                save_object(precision_list,precomputed_path+'precision_list_'+str(k)+'.pkl')
-                save_object(rnd_baseline_list,precomputed_path+'rnd_baseline_list_'+str(k)+'.pkl')
-                save_object(upper_bound_list,precomputed_path+'upper_bound_list_'+str(k)+'.pkl')
-                save_object(mrr_list,precomputed_path+'mrr_list_'+str(k)+'.pkl')
+                save_object(ndcg_list,result_metrics_path+'ndcg_list_'+str(k)+'.pkl')
+                save_object(precision_list,result_metrics_path+'precision_list_'+str(k)+'.pkl')
+                save_object(rnd_baseline_list,result_metrics_path+'rnd_baseline_list_'+str(k)+'.pkl')
+                save_object(upper_bound_list,result_metrics_path+'upper_bound_list_'+str(k)+'.pkl')
+                save_object(mrr_list,result_metrics_path+'mrr_list_'+str(k)+'.pkl')
 

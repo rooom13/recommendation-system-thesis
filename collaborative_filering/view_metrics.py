@@ -18,42 +18,42 @@ def avg(d):
         
 def view_metrics(fakeDataset,kk=[10,100,200], showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
-        storePath = './precomputed_data/' if not fakeDataset else './fake_precomputed_data/'
-        
+        precomputed_path = './precomputed_data/' if not fakeDataset else './fake_precomputed_data/'
+        result_metrics_path = precomputed_path + 'metrics_result/'
 
+        print('Evaluations results for k=',kk)
         for k in kk:
-                print('k='+str(k))
+                print('\tk='+str(k))
                 if (showPrecision):
                 
-                        precisions = read_object(storePath + 'precision_list_'+ str(k) +'.pkl')
-                        randomBaselines = read_object(storePath + 'rnd_baseline_list_'+ str(k) +'.pkl')
-                        upperBounds = read_object(storePath + 'upper_bound_list_'+ str(k) +'.pkl')
+                        precisions = read_object(result_metrics_path + 'precision_list_'+ str(k) +'.pkl')
+                        randomBaselines = read_object(result_metrics_path + 'rnd_baseline_list_'+ str(k) +'.pkl')
+                        upperBounds = read_object(result_metrics_path + 'upper_bound_list_'+ str(k) +'.pkl')
                         
                         prec_avg = round(avg(precisions),4)
                         rnd_baseline = avg(randomBaselines)
                         upper_bound = round(avg(upperBounds),4)
 
-                        print('\t- precision:\t'+str(prec_avg))
-                        print('\trnd_baseline:\t'+str(rnd_baseline))
-                        print(upperBounds)
-                        print('\tupper_bound:\t'+str(upper_bound))
+                        print('\t\t- precision:\t'+str(prec_avg))
+                        print('\t\trnd_baseline:\t'+str(rnd_baseline))
+                        print('\t\tupper_bound:\t'+str(upper_bound))
 
                         if showPlots:
                                 print_histogram(precisions,bins=25,title='Histogram Precision@' + ' μ=' + str(prec_avg),xlabel='score', ylabel='# users')
                 
                 if (showMrr):
-                        mrrs = read_object(storePath + 'mrr_list_'+ str(k) +'.pkl')
+                        mrrs = read_object(result_metrics_path + 'mrr_list_'+ str(k) +'.pkl')
                         mrrs_avg = round(avg(mrrs),4)
 
-                        print('\t- MRR:\t'+str(mrrs_avg))
+                        print('\t\t- MRR:\t'+str(mrrs_avg))
                         
                         if showPlots:
                                 print_histogram(mrrs,bins=25,title='Histogram MRR@'+str(k)+ ' avg='+str(mrrs_avg),xlabel='score', ylabel='# users')
                 
                 if (showNdcg):
-                        ndgcs = read_object(storePath + 'ndcg_list_'+ str(k) +'.pkl')
+                        ndgcs = read_object(result_metrics_path + 'ndcg_list_'+ str(k) +'.pkl')
                         ndcg_avg = round(avg(ndgcs),4)
-                        print('\t- nDCG:\t'+str(ndcg_avg))
+                        print('\t\t- nDCG:\t'+str(ndcg_avg))
                         if showPlots:                
                                 print_histogram(ndgcs,bins=25,title='Histogram ndcg@'+str(k)+' avg='+str(ndcg_avg),xlabel='score', ylabel='# users')
 

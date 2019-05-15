@@ -3,3 +3,4 @@ precomputed_data
 .vscode
 __pycache__
 old
+metrics_result
