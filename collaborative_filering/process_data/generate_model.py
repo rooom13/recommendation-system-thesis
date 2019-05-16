@@ -17,15 +17,14 @@ def load_data(precomputed_path):
 
     return artist_indices, user_indices , plays_full, plays_train
 
-def generate_model(fakeDataset):
+def generate_model(fakeDataset,factors=64,regularization=0.1,iterations=50):
     precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
     
     # load normalized data from pickle files
     artist_indices, user_indices , plays_full, plays_train = load_data(precomputed_path)
     
-    model = implicit.als.AlternatingLeastSquares(factors=100, iterations=50)
+    model = implicit.als.AlternatingLeastSquares(factors=factors, iterations=iterations)
     model.fit(plays_train.T)
     save_object(model, precomputed_path + 'model.pkl')
-    user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=20, regularization = 0.1, iterations = 50)
-    print(user_vecs_reg.T ) # * item_vecs_reg)
+    # user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=factors, regularization = regularization, iterations = iterations)
 
