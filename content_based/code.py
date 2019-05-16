@@ -20,10 +20,8 @@ def item(id):
 def calcuate_similarities(artistid, k):
     # which index is artistid in df 
     artist_index = ds.index[ds['id'].str.match(artistid)].tolist()[0]
-    print(artist_index)
     # get k sorted similar artists indexes
     similar_indices = cosine_similarities[artist_index].argsort()[:-(k+1):-1][1:]
-    print(similar_indices[1:])
     # which artists are those indexes
     similar_artists = [(cosine_similarities[artist_index][i], ds['id'][i]) for i in similar_indices]
     return similar_artists
