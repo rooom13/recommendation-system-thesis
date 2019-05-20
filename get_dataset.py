@@ -44,22 +44,23 @@ def getData(url, path, folder):
         extractFile(path)
 
 pathDataset = './dataset/'
-
-urlBios = 'https://zenodo.org/record/831348/files/bios_msd-a.tar.gz?download=1'
-nameBios = 'bios.tar.gz'
-folderBios = 'bios'
-
-urlTags = 'https://zenodo.org/record/831348/files/tags_msd-a.tar.gz?download=1'
-nameTags = 'tags.tar.gz'
-folderTags = 'tags'
-
-urlTriplets = 'https://zenodo.org/record/831348/files/triplets_msd-a.tar.gz?download=1'
-nameTriplets = 'triplets.tar.gz'
-folderTriplets = 'triplets'
-
 def getDataset():
 
+
+    urlBios = 'https://zenodo.org/record/831348/files/bios_msd-a.tar.gz?download=1'
+    nameBios = 'bios.tar.gz'
+    folderBios = 'bios'
+
+    urlTags = 'https://zenodo.org/record/831348/files/tags_msd-a.tar.gz?download=1'
+    nameTags = 'tags.tar.gz'
+    folderTags = 'tags'
+
+    urlTriplets = 'https://zenodo.org/record/831348/files/triplets_msd-a.tar.gz?download=1'
+    nameTriplets = 'triplets.tar.gz'
+    folderTriplets = 'triplets'
+
     if os.path.exists(pathDataset):
+        print(pathDataset)
         print('Dataset already exists')
         exit(0)
     os.mkdir(pathDataset)

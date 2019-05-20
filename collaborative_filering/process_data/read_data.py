@@ -38,17 +38,22 @@ def get_train_data(triplets, P = 0.85):
 
 def get_indexes(triplets):
     print('Obtaining indexes...', end='')
-    artists_index = {}
-    users_index = {}
+    artist_index = {}
+    index_artist = {}
+    
+    user_index = {}
+    index_user = {}
 
 
     for (artistid, artistname) in  enumerate(triplets['artist'].cat.categories):
-        artists_index[artistname] = artistid
+        artist_index[artistname] = artistid
+        index_artist[artistid] =artistname
     
     for (userid,username) in enumerate(triplets['user'].cat.categories):
-        users_index[username] = userid
+        user_index[username] = userid
+        index_user[userid] = username
     
-    return artists_index, users_index
+    return artist_index, index_artist, user_index, index_user
     
 def get_plays(triplets):
     print('Obtaining plays...',end='')
@@ -70,7 +75,7 @@ def read_data(dataset_path):
         full_data = read_triplets(triplets_path)
         train_data = get_train_data(full_data)
 
-        artists_index,users_index = get_indexes(full_data)
+        artist_index, index_artist, user_index, index_user = get_indexes(full_data)
         plays_full  = get_plays(full_data)
         plays_train = get_plays(train_data)
 
@@ -79,7 +84,8 @@ def read_data(dataset_path):
         if not os.path.exists(precomputed_path):
             os.mkdir(precomputed_path)
 
-        save_object( (artists_index,users_index),  precomputed_path + 'artist_user_indexes.pkl')
+        save_object( ( artist_index, index_artist,),  precomputed_path + 'artist_index_index_artist.pkl')
+        save_object( (user_index, index_user),  precomputed_path + 'user_index_index_user.pkl')
         save_object( plays_full,  precomputed_path + 'plays_full.pkl')
         save_object( plays_train,  precomputed_path + 'plays_train.pkl')
 

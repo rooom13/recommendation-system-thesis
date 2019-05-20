@@ -8,9 +8,8 @@ def print_progress(text, completed, new_completed):
             sys.stdout.write('\r'+text+ str(round(completed,2)) + ' %' )
             sys.stdout.flush()
 
-def bios_to_table(fakeDataset):
+def bios_to_table(dataset_path):
 
-    dataset_path = '../fake_dataset/' if fakeDataset else '../dataset/'  
     bios_path = dataset_path +'bios/'
     file_output = dataset_path +'bios.txt'
 

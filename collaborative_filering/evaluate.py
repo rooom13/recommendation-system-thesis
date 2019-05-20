@@ -43,9 +43,7 @@ def load_data(precomputed_path):
 
 def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
 
-
         NUSERS,NARTISTS = plays_full.shape
-
 
         precision_list = []
         rnd_baseline_list = []
