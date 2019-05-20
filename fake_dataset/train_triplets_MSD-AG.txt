@@ -3,7 +3,6 @@ user0	artist1	1
 user0	artist2	8	
 user0	artist3	4
 user0	artist4	4
-user1	artist5	4
 user1	artist6	4
 user1	artist7	4
 user2	artist8	4

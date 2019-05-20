@@ -1,25 +1,14 @@
-from process_data.bios_to_table import bios_to_table
+# from process_data.bios_to_table import bios_to_table
+from evaluate import evaluate
 
 
-# import sys
+fakeDataset = False
+dataset_path = '../fake_dataset/' if fakeDataset else '../dataset/'
+results_path =  '../fake_results/' if fakeDataset else '../results/'
 
-fakeDataset = True
 
-datasatPath = '../fake_dataset/' if fakeDataset else '../dataset/' 
-
-bios_to_table(datasatPath)
-
-# # de 
-# a = {
-# 0: 'artist0',
-# 1: 'artist1',
-# 2: 'artist2',
-# 3: 'artist3',
-# 4: 'artist4'
-# }
-
-# print(list(a.values()))
-# print(list(a.values())[2])
-
+# bios_to_table(dataset_path)
+kk = [5] 
+evaluate(dataset_path, results_path,kk=kk)
 
 

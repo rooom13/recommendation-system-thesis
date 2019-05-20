@@ -77,7 +77,11 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
 
         for artist in rec_artists:
-                artist_id = artist_index[artist]
+                try:
+                        artist_id = artist_index[artist]
+                except KeyError:
+                        continue
+                
                 ground_truth = plays_full[user_id,artist_id]
                 # print(ground_truth) 
                 relevants.append(1 if ground_truth > 1 else 0) 
@@ -132,10 +136,4 @@ def evaluate(dataset_path,results_path, kk=[10,100,200]):
     
 
 
-fakeDataset = True
-dataset_path = '../fake_dataset/' if fakeDataset else '../dataset/'
-results_path =  '../fake_results/' if fakeDataset else '../results/'
 
-kk = [5] 
-
-evaluate(dataset_path, results_path,kk=kk)
