@@ -37,7 +37,7 @@ def loadData(dataset_path):
     norm_plays_full = read_object(norm_plays_full_path)
     print('3/5', end='...')
     ds = pd.read_csv(bios_path,sep='\t') 
-    print('4/5')
+    print('4/5', end='...')
     artist_index, index_artist = read_object(artists_indices_path)
     print('5/5')
 
@@ -63,7 +63,7 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
     
         # user id mapped to usernames
         user_history = [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]
-        print(user_history)
+
         # whichs indices in bios
         history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
         # recommend
@@ -71,14 +71,10 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
         # which artists id are those indices 
         rec_artists = [ds_bios.iloc[i]['id'] for i in rec_indices]
-        print(rec_artists)
 
         scores = []
         relevants = []
 
-        print(plays_full.T.toarray())
-        print('plays_full.T.toarray()')
-        print(plays_train.T.toarray())
 
         for artist in rec_artists:
                 artist_id = artist_index[artist]
@@ -129,7 +125,6 @@ def evaluate(dataset_path,results_path, kk=[10,100,200]):
 
     for k in kk:
         ndcg_list, precision_list, mrr_list = get_scores(ds_bios,plays_full,plays_train, norm_plays_full,model,artist_index, index_artist, k=k)
-        print(ndcg_list, precision_list, mrr_list)
         save_object(ndcg_list,results_path+'ndcg_list_'+str(k)+'.pkl')
         save_object(precision_list,results_path+'precision_list_'+str(k)+'.pkl')
         save_object(mrr_list,results_path+'mrr_list_'+str(k)+'.pkl')
