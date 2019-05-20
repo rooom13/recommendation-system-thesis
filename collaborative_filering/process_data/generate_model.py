@@ -17,8 +17,8 @@ def load_data(precomputed_path):
 
     return artist_indices, user_indices , plays_full, plays_train
 
-def generate_model(fakeDataset,factors=64,regularization=0.1,iterations=50):
-    precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
+def generate_model(datasetPath,factors=64,regularization=0.1,iterations=50):
+    precomputed_path = datasetPath + 'precomputed_data/'
     
     # load normalized data from pickle files
     artist_indices, user_indices , plays_full, plays_train = load_data(precomputed_path)

@@ -3,6 +3,7 @@ from scipy.sparse import coo_matrix, csr_matrix
 import numpy as np
 import sys
 from ReadSave import *
+import os
 
 
 float_formatter = lambda x: "%.4f" % x
@@ -57,17 +58,16 @@ def get_plays(triplets):
     return coo_matrix((data, (rows, cols))).T
 
 
-def read_data(fakeDataset = True):
+def read_data(dataset_path):
 
         print('Reading data...',end=' ')
 
-        output_filename = 'dataset_objects.pkl'
 
-        dataset_path = '../fake_dataset/triplets.txt' if fakeDataset else '../dataset/train_triplets_MSD-AG.txt'
-        store_path = './precomputed_data/' if not  fakeDataset else './fake_precomputed_data/'
+        triplets_path = dataset_path + 'train_triplets_MSD-AG.txt'
+        precomputed_path =  dataset_path + 'precomputed_data/' 
 
 
-        full_data = read_triplets(dataset_path)
+        full_data = read_triplets(triplets_path)
         train_data = get_train_data(full_data)
 
         artists_index,users_index = get_indexes(full_data)
@@ -75,8 +75,12 @@ def read_data(fakeDataset = True):
         plays_train = get_plays(train_data)
 
         # save objects to cache them
-        save_object( (artists_index,users_index),  store_path + 'artist_user_indexes.pkl')
-        save_object( plays_full,  store_path + 'plays_full.pkl')
-        save_object( plays_train,  store_path + 'plays_train.pkl')
+
+        if not os.path.exists(precomputed_path):
+            os.mkdir(precomputed_path)
+
+        save_object( (artists_index,users_index),  precomputed_path + 'artist_user_indexes.pkl')
+        save_object( plays_full,  precomputed_path + 'plays_full.pkl')
+        save_object( plays_train,  precomputed_path + 'plays_train.pkl')
 
         print('Done')

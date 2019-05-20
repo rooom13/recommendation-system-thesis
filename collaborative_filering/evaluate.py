@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import time
 import metrics
+import os
 
 
 # Just for a prettier matrix print
@@ -93,10 +94,19 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
         print(' ...completed', end='\n')
         return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list
 
-def evaluate(fakeDataset,kk=[10,100,200]):
+def evaluate(datasetPath,resultsPath,kk=[10,100,200]):
 
-        precomputed_path =  './fake_precomputed_data/' if fakeDataset else './precomputed_data/'
-        result_metrics_path = precomputed_path + 'metrics_result/'
+        precomputed_path =  datasetPath + 'precomputed_data/'
+
+        if not os.path.exists(resultsPath):
+                os.mkdir(resultsPath)
+
+        resultsPath = resultsPath + 'collaborating_filtering/' 
+        
+        if not os.path.exists(resultsPath):
+                os.mkdir(resultsPath)
+                
+
         # load normalized data from pickle files
         plays_full,norm_plays_full, norm_plays_train,model = load_data(precomputed_path)
 
@@ -105,9 +115,9 @@ def evaluate(fakeDataset,kk=[10,100,200]):
         for k in kk:
                 ndcg_list, precision_list, mrr_list, rnd_baseline_list, upper_bound_list = get_scores( plays_full, norm_plays_full, norm_plays_train,model,k=k)
                 
-                save_object(ndcg_list,result_metrics_path+'ndcg_list_'+str(k)+'.pkl')
-                save_object(precision_list,result_metrics_path+'precision_list_'+str(k)+'.pkl')
-                save_object(rnd_baseline_list,result_metrics_path+'rnd_baseline_list_'+str(k)+'.pkl')
-                save_object(upper_bound_list,result_metrics_path+'upper_bound_list_'+str(k)+'.pkl')
-                save_object(mrr_list,result_metrics_path+'mrr_list_'+str(k)+'.pkl')
+                save_object(ndcg_list,resultsPath+'ndcg_list_'+str(k)+'.pkl')
+                save_object(precision_list,resultsPath+'precision_list_'+str(k)+'.pkl')
+                save_object(rnd_baseline_list,resultsPath+'rnd_baseline_list_'+str(k)+'.pkl')
+                save_object(upper_bound_list,resultsPath+'upper_bound_list_'+str(k)+'.pkl')
+                save_object(mrr_list,resultsPath+'mrr_list_'+str(k)+'.pkl')
 
