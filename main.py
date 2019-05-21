@@ -7,7 +7,7 @@ from content_based.bios_to_table import bios_to_table as read_bios
 from evaluate import evaluate
 
 from view_metrics import view_metrics
-fakeDataset = True
+fakeDataset = False
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 
@@ -16,14 +16,27 @@ try:
     kk = [int(sys.argv[1])]
 except:
     kk = [5,10,100,200,500]
-#     kk = [5, 10]
+    kk = [10]
+
+metrics = {
+    'map': False, 
+    'diversity': False, 
+    'ndcg': False, 
+    'mrr': False,
+    'rnd': True,
+    'ub': True
+    }
+methods = {
+    'cf': True,
+    'cb': True
+}
 
 
-read_triplets(datasetPath)
-scale_data(datasetPath)
-read_bios(datasetPath)
+# read_triplets(datasetPath)
+# scale_data(datasetPath)
+# read_bios(datasetPath)
 
 
-generate_model(datasetPath)
-evaluate(datasetPath,resultsPath,kk=kk)
-view_metrics(resultsPath, kk=kk)
+# generate_model(datasetPath)
+evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)
