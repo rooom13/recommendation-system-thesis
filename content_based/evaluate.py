@@ -67,13 +67,15 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
         user_history = [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]
 
         # whichs indices in abios
-        history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
+        history_index_bios = ds_bios[ds_bios['id'].isin([user_history])].index.values
         # recommend
         rec_indices = model.recommend_similars(history_index_bios,k)
 
         # which artists id are those indices 
         rec_artists = [ds_bios.iloc[i]['id'] for i in rec_indices]
 
+        print(history_index_bios,rec_artists)
+        sys.exit()
         scores = []
         relevants = []
 

@@ -1,6 +1,6 @@
 user0	artist0	99
 user0	artist1	77
-user0	artist2	2	
+user0	artist2	1	
 user0	artist3	4
 user0	artist4	88
 user1	artist0	77

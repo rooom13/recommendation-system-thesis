@@ -60,7 +60,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 upperBounds = read_object(results_cf + 'upper_bound_list_'+ str(k) +'.pkl')
                 upper_bound_list.append(avg(upperBounds))
             
-            if(metrics['ndcg']):            
+            if(metrics['map']):            
                 precisions_cf = read_object(results_cf + 'precision_list_'+ str(k) +'.pkl')
                 precisions_cb = read_object(results_cb + 'precision_list_'+ str(k) +'.pkl')
                 cf_map_list.append(avg(precisions_cf))

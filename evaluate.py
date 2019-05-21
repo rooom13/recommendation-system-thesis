@@ -28,7 +28,7 @@ def print_progress(text, completed, new_completed):
 
 # load user_indices, artist_indices, plays 
 def load_data(dataset_path,precomputed_path, methods):
-    print('\tEvaluation started, loading data...', end='')
+    print('Evaluation started, loading data...', end='')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     plays_train_path = precomputed_path + 'plays_train.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
@@ -75,28 +75,54 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     cf_diversity = set()
     cb_diversity = set()
 
+
+
+    msg2 = ('map ' if metrics['map'] else '') +\
+    ('rnd ' if metrics['rnd'] else '') +\
+    ('ub ' if metrics['ub'] else '') +\
+    ('diversity ' if metrics['diversity'] else '') +\
+    ('ndcg ' if metrics['ndcg'] else '') +\
+    ('mrr ' if metrics['mrr'] else '') + ' -> ' +\
+    ('CF ' if methods['cf'] else '') +\
+    ('CB ' if methods['cb'] else '') 
+    
     completed = 0
     new_completed = 0
-    for user_id in range(0,NUSERS):
+    for user_id in [0]: #range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
-        print_progress('\tEvaluating  CF SR k=' + str(k) + '\t  ', completed ,new_completed  )
+        print_progress('Evaluating '+msg2+' k=' + str(k) + '\t  ', completed ,new_completed  )
         
         # Colaborative filtering rank
-        
         cf_rank = None if not methods['cf'] else cf_model.recommend(user_id, norm_plays_train,N=k ) 
 
-        # Random baseline rank
-        rnd_rank = None if not metrics['rnd'] else np.round(np.random.rand(k))*(NARTISTS-1)
+
         # Content based rank 0/5
-        # get artistid mapped to artistnames from user artist history 
-        user_history =  None if not methods['cb'] else [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]
+        # get artistid mapped to artistnames from user artist history
+        user_history_indexs = (plays_train[user_id] > 1).nonzero()[1] 
+        
+        user_history =  None if not methods['cb'] else [index_artist[artistid] for artistid in user_history_indexs]
         # whichs indices in bios
         history_index_bios =  None if not methods['cb'] else ds_bios[ds_bios['id'].isin(user_history)].index.values
         # recommend
         rec_indices =  None if not methods['cb'] else cb_model.recommend_similars(history_index_bios,k)
         # which artists id are those indices 
         cb_rank =  None if not methods['cb'] else  [ds_bios.iloc[i]['id'] for i in rec_indices]
-        
+      
+
+        # Random baseline rank
+        rnd_rank = [] if not metrics['rnd'] else np.arange(NARTISTS +1)
+        np.random.shuffle( rnd_rank ) 
+        rnd_rank = rnd_rank.tolist() 
+        rnd_rank =  rnd_rank[:k]        
+
+        for i in user_history_indexs: 
+            try:
+               rnd_rank.remove(i)
+            except:
+                pass
+
+        # print('rnd_rank',rnd_rank)
+
         rnd_relevants = []
         upper_bound = 0
 
@@ -106,20 +132,25 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
         cf_relevants = []
         cb_relevants = []
         
-
-        
         # rnd baseline
         if(metrics['rnd']):
                 for artist_id in rnd_rank:
-                        ground_truth = plays_full[user_id,artist_id]
-                        rnd_relevants.append(1 if ground_truth > 1 else 0) 
+                        try:
+                                ground_truth = plays_full[user_id,artist_id]
+                        except:
+                                ground_truth = 0
+                        finally:
+                                rnd_relevants.append(1 if ground_truth > 1 else 0) 
         
         # Upper bounds
         if(metrics['ub']):
                 x, nonzero = plays_full[user_id].nonzero()
-                for artistid in nonzero:
+                for artist_id in nonzero:
                         ground_truth = plays_full[user_id,artist_id]
-                        upper_bound += (1 if ground_truth > 1 else 0)
+                        train = plays_train[user_id,artist_id]
+                        if(train == 0 and ground_truth > 1):
+                                upper_bound += 1
+
         
         # Diversities
         if(metrics['diversity']):
@@ -127,6 +158,8 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
                 cb_diversity.update(cb_rank)
 
         # Relevants & ndcg score
+        # print('cf_rank', cf_rank)
+        # print('cb_rank', cb_rank)
         if(metrics['map'] or metrics['ndcg'] or metrics['mrr'] ):
                 # Cf
                 if(methods['cf']): 
@@ -154,7 +187,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
         
 
         # rnd baseline & upper bound
-        rnd_baseline_list.append(metricsf.precision_at_k(rnd_relevants, k))
+        rnd_baseline_list.append(sum(rnd_relevants)/k)
         upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
         # nDCG
         cf_ndcg_list.append(metricsf.ndcg_at_k(cf_ndcg_score, k))

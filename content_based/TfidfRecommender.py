@@ -14,12 +14,14 @@ class TfidfRecommender:
 
     def calcuate_similarities(self, tfidf_query, k, exclude=[]):
         # get K cosine similar indices to query
-        artists =  cosine_similarity(tfidf_query, self.tfidf_matrix).argsort()[0][:-(k+1):-1].tolist()
+        artists =  cosine_similarity(tfidf_query, self.tfidf_matrix).argsort()[0][:-(k+1+len(exclude)):-1].tolist()
+        
         for i in exclude: 
             try:
                 artists.remove(i)
             except:
                 pass
+   
         return artists
     def recommend_similars(self, artists, k):
         # get tfidf from indexes
@@ -27,11 +29,11 @@ class TfidfRecommender:
         if len(tfidf_artists) == 0:
             return []
         
-
         #avg tfidf artists
         tfidf_query = sum(tfidf_artists)/len(tfidf_artists)
 
         rec_artists = self.calcuate_similarities(tfidf_query,k, exclude =artists)
+       
         return rec_artists
         
   
