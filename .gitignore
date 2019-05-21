@@ -5,3 +5,5 @@ fake_precomputed_data
 __pycache__
 old
 metrics_result
+fake_results
+results

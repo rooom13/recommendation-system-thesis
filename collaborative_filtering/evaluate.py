@@ -24,7 +24,7 @@ def print_progress(text, completed, new_completed):
 
 # load user_indices, artist_indices, plays 
 def load_data(precomputed_path):
-    print('Evaluation started, loading data...', end='')
+    print('Collaborative filtering:\t - Evaluation started, loading data...', end='')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
     norm_plays_train_path = precomputed_path + 'norm_plays_train.pkl'
@@ -54,7 +54,7 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
         new_completed = 0
         for user_id in range(0,NUSERS):
                 new_completed = (user_id +1)/ (NUSERS) * 100
-                print_progress('\tEvaluating k=' + str(k) + '\t  ', completed ,new_completed  )
+                print_progress('\tEvaluating  CF SR k=' + str(k) + '\t  ', completed ,new_completed  )
                 
                 sr_rank = model.recommend(user_id, norm_plays_train,N=k ) 
                 rnd_rank = np.round(np.random.rand(k))*(NARTISTS-1)

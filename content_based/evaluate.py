@@ -21,7 +21,7 @@ def print_progress(text, completed, new_completed):
 
 
 def loadData(dataset_path):
-    print('Evaluation started, loading data...', end='')
+    print('Content based:\t - Evaluation started, loading data...', end='')
     precomputed_path =  dataset_path + 'precomputed_data/' 
     plays_full_path = precomputed_path + 'plays_full.pkl'
     plays_train_path = precomputed_path + 'plays_train.pkl'
@@ -59,7 +59,7 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
     for user_id in range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
-        print_progress('\tEvaluating k=' + str(k) + '\t  ', completed ,new_completed  )
+        print_progress('\tEvaluating CB SR k=' + str(k) + '\t  ', completed ,new_completed  )
     
         # user id mapped to usernames
         user_history = [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]

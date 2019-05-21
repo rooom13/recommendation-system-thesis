@@ -18,7 +18,7 @@ def avg(d):
         
 def view_metrics(resultsPath,kk=[10,100,200], showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
-        results_path = resultsPath + 'collaborating_filtering/' 
+        results_path = resultsPath + 'content_based/' 
 
         print('Evaluations results for k=',kk)
         
@@ -28,16 +28,16 @@ def view_metrics(resultsPath,kk=[10,100,200], showPrecision=True, showNdcg=True,
                 if (showPrecision):
                 
                         precisions = read_object(results_path + 'precision_list_'+ str(k) +'.pkl')
-                        randomBaselines = read_object(results_path + 'rnd_baseline_list_'+ str(k) +'.pkl')
-                        upperBounds = read_object(results_path + 'upper_bound_list_'+ str(k) +'.pkl')
+                        # randomBaselines = read_object(results_path + 'rnd_baseline_list_'+ str(k) +'.pkl')
+                        # upperBounds = read_object(results_path + 'upper_bound_list_'+ str(k) +'.pkl')
                         
                         prec_avg = round(avg(precisions),4)
-                        rnd_baseline = avg(randomBaselines)
-                        upper_bound = round(avg(upperBounds),4)
-
+                        # rnd_baseline = avg(randomBaselines)
+                        # upper_bound = round(avg(upperBounds),4)
+                        print('\tk='+str(k))
                         print('\t\t- precision:\t'+str(prec_avg))
-                        print('\t\trnd_baseline:\t'+str(rnd_baseline))
-                        print('\t\tupper_bound:\t'+str(upper_bound))
+                        # print('\t\trnd_baseline:\t'+str(rnd_baseline))
+                        # print('\t\tupper_bound:\t'+str(upper_bound))
 
                         if showPlots:
                                 print_histogram(precisions,bins=25,title='Histogram Precision@' + ' μ=' + str(prec_avg),xlabel='score', ylabel='# users')
