@@ -20,7 +20,7 @@ def view_metrics(resultsPath,kk=[10,100,200], showPrecision=True, showNdcg=True,
 
         results_path = resultsPath + 'content_based/' 
 
-        print('Evaluations results for k=',kk)
+        print('Content Based SR: Evaluations results for k=',kk)
         
 
         for k in kk:

@@ -1,8 +1,11 @@
 user0	artist0	99
-user0	artist1	1
-user0	artist2	8	
+user0	artist1	77
+user0	artist2	2	
 user0	artist3	4
-user0	artist4	4
+user0	artist4	88
+user1	artist0	77
+user1	artist1	66
+user1	artist1	33
 user1	artist6	4
 user1	artist7	4
 user2	artist8	4

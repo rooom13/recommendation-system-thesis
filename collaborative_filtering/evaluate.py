@@ -50,6 +50,10 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
         upper_bound_list = []
         mrr_list = []
         ndcg_list = []
+
+        diversity = set()
+
+
         completed = 0
         new_completed = 0
         for user_id in range(0,NUSERS):
@@ -57,6 +61,10 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
                 print_progress('\tEvaluating  CF SR k=' + str(k) + '\t  ', completed ,new_completed  )
                 
                 sr_rank = model.recommend(user_id, norm_plays_train,N=k ) 
+                
+                diversity.update([i for i,x in sr_rank])
+                
+                
                 rnd_rank = np.round(np.random.rand(k))*(NARTISTS-1)
 
                 scores = []
@@ -90,19 +98,19 @@ def get_scores( plays_full, norm_plays_full, norm_plays_train,model, k=5):
          
 
         print(' ...completed', end='\n')
-        return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list
+        return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list, diversity
 
-def evaluate(datasetPath,resultsPath,kk=[10,100,200]):
+def evaluate(datasetPath,results_path,kk=[10,100,200]):
 
         precomputed_path =  datasetPath + 'precomputed_data/'
 
-        if not os.path.exists(resultsPath):
-                os.mkdir(resultsPath)
+        if not os.path.exists(results_path):
+                os.mkdir(results_path)
 
-        resultsPath = resultsPath + 'collaborating_filtering/' 
+        results_path = results_path + 'collaborating_filtering/' 
         
-        if not os.path.exists(resultsPath):
-                os.mkdir(resultsPath)
+        if not os.path.exists(results_path):
+                os.mkdir(results_path)
                 
 
         # load normalized data from pickle files
@@ -111,11 +119,12 @@ def evaluate(datasetPath,resultsPath,kk=[10,100,200]):
 
 
         for k in kk:
-                ndcg_list, precision_list, mrr_list, rnd_baseline_list, upper_bound_list = get_scores( plays_full, norm_plays_full, norm_plays_train,model,k=k)
-                
-                save_object(ndcg_list,resultsPath+'ndcg_list_'+str(k)+'.pkl')
-                save_object(precision_list,resultsPath+'precision_list_'+str(k)+'.pkl')
-                save_object(rnd_baseline_list,resultsPath+'rnd_baseline_list_'+str(k)+'.pkl')
-                save_object(upper_bound_list,resultsPath+'upper_bound_list_'+str(k)+'.pkl')
-                save_object(mrr_list,resultsPath+'mrr_list_'+str(k)+'.pkl')
+                ndcg_list, precision_list, mrr_list, rnd_baseline_list, upper_bound_list, diversity = get_scores( plays_full, norm_plays_full, norm_plays_train,model,k=k)
+                print('diversity',len(diversity))
+                save_object(ndcg_list,results_path+'ndcg_list_'+str(k)+'.pkl')
+                save_object(precision_list,results_path+'precision_list_'+str(k)+'.pkl')
+                save_object(rnd_baseline_list,results_path+'rnd_baseline_list_'+str(k)+'.pkl')
+                save_object(upper_bound_list,results_path+'upper_bound_list_'+str(k)+'.pkl')
+                save_object(mrr_list,results_path+'mrr_list_'+str(k)+'.pkl')
+                save_object(diversity,results_path+'diversity_'+str(k)+'.pkl')
 

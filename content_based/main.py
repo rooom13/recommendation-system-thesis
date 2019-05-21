@@ -4,16 +4,19 @@ from evaluate import evaluate
 import sys
 
 
-fakeDataset = False
+fakeDataset = True
 dataset_path = '../fake_dataset/' if fakeDataset else '../dataset/'
 results_path =  '../fake_results/' if fakeDataset else '../results/'
 
 
 # bios_to_table(dataset_path)
-kk = [5] 
 
-kk = [int(sys.argv[1])]
 
+try:
+    kk = [int(sys.argv[1])]
+except:
+    kk = [5,10,100,200,500]
+    kk = [5]
 evaluate(dataset_path, results_path,kk=kk)
 # view_metrics(results_path,kk=kk, showPrecision=True, showNdcg=True, showMrr=True, showPlots=False)
 

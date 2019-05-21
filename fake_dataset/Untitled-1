@@ -1,0 +1,14 @@
+metric  CF      CB
+nDCG    0.23    0.00
+MRR
+MAP     0.43    0.24    rnd:    upper:  
+
+---------------------
+
+method  nDCG    MRR     MAP
+CF      0.23    0.23    0.23
+CB      0.23    0.23    0.23
+-----------------------------
+rnd baseline            0.32
+upper  bound            0.32
+

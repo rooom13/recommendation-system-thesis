@@ -32,7 +32,7 @@ def view_metrics(resultsPath,kk=[10,100,200], showPrecision=True, showNdcg=True,
                         upperBounds = read_object(results_path + 'upper_bound_list_'+ str(k) +'.pkl')
                         
                         prec_avg = round(avg(precisions),4)
-                        rnd_baseline = avg(     )
+                        rnd_baseline = avg(randomBaselines)
                         upper_bound = round(avg(upperBounds),4)
                         print('\tk='+str(k))
                         print('\t\t- precision:\t'+str(prec_avg))

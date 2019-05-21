@@ -54,17 +54,19 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
     mrr_list = []
     ndcg_list = []
 
+    diversity = set()
+
     completed = 0
     new_completed = 0
 
     for user_id in range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
         print_progress('\tEvaluating CB SR k=' + str(k) + '\t  ', completed ,new_completed  )
-    
+
         # user id mapped to usernames
         user_history = [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]
 
-        # whichs indices in bios
+        # whichs indices in abios
         history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
         # recommend
         rec_indices = model.recommend_similars(history_index_bios,k)
@@ -77,6 +79,7 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
 
         for artist in rec_artists:
+                diversity.update(rec_artists)
                 try:
                         artist_id = artist_index[artist]
                 except KeyError:
@@ -106,7 +109,9 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
         for artist in rec_artists:
                 print('- '+artist, ds_bios[ds_bios['id'] == artist]['bio'].tolist()[0][:100] )
         """
-    return ndcg_list,precision_list,mrr_list
+        
+    print('')
+    return ndcg_list,precision_list,mrr_list, diversity
 
     
 
@@ -128,10 +133,12 @@ def evaluate(dataset_path,results_path, kk=[10,100,200]):
   
 
     for k in kk:
-        ndcg_list, precision_list, mrr_list = get_scores(ds_bios,plays_full,plays_train, norm_plays_full,model,artist_index, index_artist, k=k)
+        ndcg_list, precision_list, mrr_list, diversity = get_scores(ds_bios,plays_full,plays_train, norm_plays_full,model,artist_index, index_artist, k=k)
+        print('diversity',len(diversity))
         save_object(ndcg_list,results_path+'ndcg_list_'+str(k)+'.pkl')
         save_object(precision_list,results_path+'precision_list_'+str(k)+'.pkl')
         save_object(mrr_list,results_path+'mrr_list_'+str(k)+'.pkl')
+        save_object(diversity,results_path+'diversity_'+str(k)+'.pkl')
 
     
 
