@@ -1,6 +1,6 @@
-from process_data.read_data import read_data
-from process_data.scale_data import scale_data
-from process_data.generate_model import generate_model
+from read_data import read_data
+from scale_data import scale_data
+from generate_model import generate_model
 
 import sys
 from evaluate import evaluate
