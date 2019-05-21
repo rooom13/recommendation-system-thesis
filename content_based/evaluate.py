@@ -30,11 +30,11 @@ def loadData(dataset_path):
     bios_path = dataset_path + 'bios.txt'
 
  
-    plays_full = read_object(plays_full_path)
+    plays_full = read_object(plays_full_path).tocsr()
     print('1/5',end='...')
-    plays_train = read_object(plays_train_path)
+    plays_train = read_object(plays_train_path).tocsr()
     print('2/5',end='...')
-    norm_plays_full = read_object(norm_plays_full_path)
+    norm_plays_full = read_object(norm_plays_full_path).tocsr()
     print('3/5', end='...')
     ds = pd.read_csv(bios_path,sep='\t') 
     print('4/5', end='...')
@@ -43,7 +43,7 @@ def loadData(dataset_path):
 
 
 
-    return plays_full.tocsr(), plays_train.tocsr(), norm_plays_full.tocsr(),ds, artist_index, index_artist
+    return plays_full, plays_train, norm_plays_full,ds, artist_index, index_artist
 
 
 def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_index, index_artist,k=5):
@@ -78,8 +78,8 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
         relevants = []
 
 
+        diversity.update(rec_artists)
         for artist in rec_artists:
-                diversity.update(rec_artists)
                 try:
                         artist_id = artist_index[artist]
                 except KeyError:

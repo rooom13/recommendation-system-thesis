@@ -4,6 +4,8 @@ from collaborative_filtering.generate_model import generate_model
 
 from content_based.bios_to_table import bios_to_table as read_bios
 
+from evaluate import evaluate
+
 from view_metrics import view_metrics
 fakeDataset = True
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
@@ -14,14 +16,14 @@ try:
     kk = [int(sys.argv[1])]
 except:
     kk = [5,10,100,200,500]
-    kk = [5, 10]
+#     kk = [5, 10]
 
 
-# read_triplets(datasetPath)
-# scale_data(datasetPath)
-# read_bios(datasetPath)
+read_triplets(datasetPath)
+scale_data(datasetPath)
+read_bios(datasetPath)
 
 
-# generate_model(datasetPath)
-
+generate_model(datasetPath)
+evaluate(datasetPath,resultsPath,kk=kk)
 view_metrics(resultsPath, kk=kk)
