@@ -73,7 +73,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     cf_mrr_list = []
     cb_mrr_list = []
     cf_diversity = set()
-    cb_diversity = set()
+    cb_diversity = {'asdasd','dsads'}
 
 
 
@@ -88,7 +88,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     
     completed = 0
     new_completed = 0
-    for user_id in [0]: #range(0,NUSERS):
+    for user_id in range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
         print_progress('Evaluating '+msg2+' k=' + str(k) + '\t  ', completed ,new_completed  )
         
@@ -110,7 +110,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
       
 
         # Random baseline rank
-        rnd_rank = [] if not metrics['rnd'] else np.arange(NARTISTS +1)
+        rnd_rank = np.array([]) if not metrics['rnd'] else np.arange(NARTISTS +1)
         np.random.shuffle( rnd_rank ) 
         rnd_rank = rnd_rank.tolist() 
         rnd_rank =  rnd_rank[:k]        
