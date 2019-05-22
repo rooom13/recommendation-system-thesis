@@ -1,8 +1,0 @@
-
-% de artistas recomendados
-
-NLTK = tokenización TFIDF
-SPICY SPEICY
-stanford nlp
-
-Comparación de 

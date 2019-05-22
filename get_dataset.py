@@ -68,7 +68,7 @@ def getDataset():
     getData(urlTags, pathDataset+nameTags, pathDataset + folderTags)
     getData(urlTriplets, pathDataset+nameTriplets, pathDataset + folderTriplets)
 
-getDataset()
+# getDataset()
 
 
 

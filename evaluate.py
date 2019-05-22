@@ -59,25 +59,8 @@ def load_data(dataset_path,precomputed_path, methods):
     return plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, model, ds
 #             rnd_baseline_list, upper_bound_list, precision_lists, ndcg_lists, mrr_lists, diversities  =  )
 
-def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, metrics, methods):
-
-    NUSERS,NARTISTS = plays_full.shape
-
-    rnd_baseline_list = []
-    upper_bound_list = []
-    
-    cf_precision_list = []
-    cb_precision_list = []
-    cf_ndcg_list = []
-    cb_ndcg_list = []
-    cf_mrr_list = []
-    cb_mrr_list = []
-    cf_diversity = set()
-    cb_diversity = set()
-
-
-
-    msg2 = ('map ' if metrics['map'] else '') +\
+def get_msg_computing(metrics, methods):
+        return ('map ' if metrics['map'] else '') +\
     ('rnd ' if metrics['rnd'] else '') +\
     ('ub ' if metrics['ub'] else '') +\
     ('diversity ' if metrics['diversity'] else '') +\
@@ -85,44 +68,72 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     ('mrr ' if metrics['mrr'] else '') + ' -> ' +\
     ('CF ' if methods['cf'] else '') +\
     ('CB ' if methods['cb'] else '') 
+
+def get_rnd_rank(NARTISTS,exclude,k):
+        rnd_rank = np.arange(NARTISTS)
+        np.random.shuffle( rnd_rank ) 
+        rnd_rank = rnd_rank.tolist() 
+        rnd_rank =  rnd_rank[:k]        
+        # exclude already listened
+        for i in exclude: 
+            try:
+               rnd_rank.remove(i)
+            except:
+                pass
+        return rnd_rank
+
+def get_cb_rank(ds_bios, user_history, cb_model,k):
+        history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
+        rec_indices = cb_model.recommend_similars(history_index_bios,k)
+        return [ds_bios.iloc[i]['id'] for i in rec_indices]
+
+def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, metrics, methods):
+
+    NUSERS,NARTISTS = plays_full.shape
+
+    # instead of storing directly the average, we save the list so we can observe the distribution
+    rnd_baseline_list = []
+    upper_bound_list = []
+    cf_precision_list = []
+    cb_precision_list = []
+    cf_ndcg_list = []
+    cb_ndcg_list = []
+    cf_mrr_list = []
+    cb_mrr_list = []
+
+    cf_diversity = set()
+    cb_diversity = set()
+
+    msg_computing = get_msg_computing(metrics, methods) 
     
     completed = 0
     new_completed = 0
     for user_id in range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
-        print_progress('Evaluating '+msg2+' k=' + str(k) + '\t  ', completed ,new_completed  )
+        # print_progress('Evaluating '+msg_computing+' k=' + str(k) + '\t  ', completed ,new_completed  )
         
         # Colaborative filtering rank
         cf_rank = None if not methods['cf'] else cf_model.recommend(user_id, norm_plays_train,N=k ) 
 
-
-        # Content based rank 0/5
-        # get artistid mapped to artistnames from user artist history
+        # get history of artistid
         user_history_indexs = (plays_train[user_id] > 1).nonzero()[1] 
-        
+
+        # mapped to artistnames from user artist history
         user_history =  None if not methods['cb'] else [index_artist[artistid] for artistid in user_history_indexs]
-        # whichs indices in bios
-        history_index_bios =  None if not methods['cb'] else ds_bios[ds_bios['id'].isin(user_history)].index.values
-        # recommend
-        rec_indices =  None if not methods['cb'] else cb_model.recommend_similars(history_index_bios,k)
-        # which artists id are those indices 
-        cb_rank =  None if not methods['cb'] else  [ds_bios.iloc[i]['id'] for i in rec_indices]
+        
+        # Content based rank 
+        cb_rank =  get_cb_rank(ds_bios, user_history, cb_model,k)
       
-
         # Random baseline rank
-        rnd_rank = np.array([]) if not metrics['rnd'] else np.arange(NARTISTS +1)
-        np.random.shuffle( rnd_rank ) 
-        rnd_rank = rnd_rank.tolist() 
-        rnd_rank =  rnd_rank[:k]        
-
-        for i in user_history_indexs: 
-            try:
-               rnd_rank.remove(i)
-            except:
-                pass
+        rnd_rank = None if not metrics['rnd'] else get_rnd_rank(NARTISTS,user_history_indexs, k)
 
         # print('rnd_rank',rnd_rank)
+        # print('cf_rank',cf_rank)
+        # print('cb_rank',cb_rank)
+        # sys.exit()
+        
 
+        # score lists for user
         rnd_relevants = []
         upper_bound = 0
 
@@ -158,8 +169,6 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
                 cb_diversity.update(cb_rank)
 
         # Relevants & ndcg score
-        # print('cf_rank', cf_rank)
-        # print('cb_rank', cb_rank)
         if(metrics['map'] or metrics['ndcg'] or metrics['mrr'] ):
                 # Cf
                 if(methods['cf']): 
@@ -187,17 +196,25 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
         
 
         # rnd baseline & upper bound
-        rnd_baseline_list.append(sum(rnd_relevants)/k)
-        upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
+        if(metrics['rnd']):
+                rnd_baseline_list.append(sum(rnd_relevants)/k)
+        if metrics['ub']:
+                upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
         # nDCG
-        cf_ndcg_list.append(metricsf.ndcg_at_k(cf_ndcg_score, k))
-        cb_ndcg_list.append(metricsf.ndcg_at_k(cb_ndcg_score, k))
+        if(metrics['ndcg'] and methods['cf']):
+                cf_ndcg_list.append(metricsf.ndcg_at_k(cf_ndcg_score, k))
+        if(metrics['ndcg'] and methods['cb']):
+             cb_ndcg_list.append(metricsf.ndcg_at_k(cb_ndcg_score, k))
         # precision
-        cf_precision_list.append(sum(cf_relevants)/k)
-        cb_precision_list.append(sum(cb_relevants)/k)
+        if(metrics['map'] and methods['cf']):
+                cf_precision_list.append(sum(cf_relevants)/k)
+        if(metrics['map'] and methods['cb']):
+                cb_precision_list.append(sum(cb_relevants)/k)
         # mrr
-        cf_mrr_list.append(metricsf.mean_reciprocal_rank(cf_relevants))
-        cb_mrr_list.append(metricsf.mean_reciprocal_rank(cb_relevants))
+        if(metrics['mrr'] and methods['cf']):
+                cf_mrr_list.append(metricsf.mean_reciprocal_rank(cf_relevants))
+        if(metrics['mrr'] and methods['cb']):
+                cb_mrr_list.append(metricsf.mean_reciprocal_rank(cb_relevants))
 
             
         

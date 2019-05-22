@@ -1,13 +1,15 @@
 from collaborative_filtering.read_data import read_data as read_triplets
 from collaborative_filtering.scale_data import scale_data
+from collaborative_filtering.scale_data import scale_data
 from collaborative_filtering.generate_model import generate_model
 
 from content_based.bios_to_table import bios_to_table as read_bios
 
+from get_dataset import getDataset as get_dataset
 from evaluate import evaluate
 
 from view_metrics import view_metrics
-fakeDataset = False
+fakeDataset = True
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 
@@ -31,6 +33,8 @@ methods = {
     'cb': False
 }
 
+
+# if not fakeDataset: get_dataset()
 
 # read_triplets(datasetPath)
 # scale_data(datasetPath)
