@@ -7,7 +7,7 @@ from content_based.bios_to_table import bios_to_table as read_bios
 from evaluate import evaluate
 
 from view_metrics import view_metrics
-fakeDataset = False
+fakeDataset = True
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 
@@ -16,13 +16,13 @@ try:
     kk = [int(sys.argv[1])]
 except:
     kk = [5,10,100,200,500]
-    kk = [10,100,200]
+    kk = [5,10,100,200]
 
 metrics = {
     'map': True, 
     'diversity': True, 
-    'ndcg': False,
-    'mrr': False,
+    'ndcg': True,
+    'mrr': True,
     'rnd': True,
     'ub': True
     }

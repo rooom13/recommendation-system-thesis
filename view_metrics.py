@@ -84,7 +84,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 diversity_cb = read_object(results_cb + 'diversity_'+ str(k) +'.pkl')
                 cf_diversity_list.append(len(diversity_cf))
                 cb_diversity_list.append(len(diversity_cb))
-                print(diversity_cb)
+                # print(diversity_cb)
 
       
         TAB = '\t\t'
