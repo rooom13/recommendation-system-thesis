@@ -16,19 +16,19 @@ try:
     kk = [int(sys.argv[1])]
 except:
     kk = [5,10,100,200,500]
-    kk = [10,100,200]
+    kk = [5,10,100]
 
 metrics = {
-    'map': True, 
-    'diversity': True, 
+    'map': False, 
+    'diversity': False, 
     'ndcg': False,
     'mrr': False,
     'rnd': True,
     'ub': True
     }
 methods = {
-    'cf': True,
-    'cb': True
+    'cf': False,
+    'cb': False
 }
 
 
@@ -38,5 +38,5 @@ methods = {
 
 
 # generate_model(datasetPath)
-evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+# evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)

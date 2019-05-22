@@ -89,7 +89,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
       
         TAB = '\t\t'
         NL = '\n'
-        DEC = 4
+        DEC = 10
 
         print('Evaluations results for k =',kk,end=':'+NL+NL)
 
