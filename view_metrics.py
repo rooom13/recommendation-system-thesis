@@ -51,6 +51,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
         cf_diversity_list = []
         cb_diversity_list = []
         
+
         for k in kk:
             if(metrics['rnd']):
                 randomBaselines  = read_object(results_cf + 'rnd_baseline_list_'+ str(k) +'.pkl')
@@ -83,6 +84,8 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 diversity_cb = read_object(results_cb + 'diversity_'+ str(k) +'.pkl')
                 cf_diversity_list.append(len(diversity_cf))
                 cb_diversity_list.append(len(diversity_cb))
+                print(diversity_cb)
+
       
         TAB = '\t\t'
         NL = '\n'
@@ -92,14 +95,14 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
 
 
         # Precision
-        print('Mean Average Precision: (MAP)')
-        print('',end=TAB)
-        print('Method',end=TAB)         
-        for k in kk:
-            print('k='+str(k),end=TAB)
-        
-        print(NL,end=TAB)
         if(methods['cf'] and metrics['map']):
+            print('Mean Average Precision: (MAP)')
+            print('',end=TAB)
+            print('Method',end=TAB)         
+            for k in kk:
+                print('k='+str(k),end=TAB)
+            
+            print(NL,end=TAB)
             print('CF',end=TAB)
             for i in range(0, len(kk) ) :
                 score = round(cf_map_list[i],DEC)
@@ -112,16 +115,18 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 print(score,end=TAB)
             print(NL,end=TAB)
 
-        print('-',end=NL+TAB)
-        print('rnd',end=TAB)
-        for i in range(0, len(kk) ) :
-            score = round(randomBaselines_list[i],DEC)
-            print(score,end=TAB)
-        print(NL,end=TAB)
-        print('ub',end=TAB)
-        for i in range(0, len(kk) ) :
-            score = round(upper_bound_list[i],DEC)
-            print(score,end=TAB)
+        if(metrics['rnd']):
+            print('-',end=NL+TAB)
+            print('rnd',end=TAB)
+            for i in range(0, len(kk) ) :
+                score = round(randomBaselines_list[i],DEC)
+                print(score,end=TAB)
+            print(NL,end=TAB)
+        if(metrics['ub']):
+            print('ub',end=TAB)
+            for i in range(0, len(kk) ) :
+                score = round(upper_bound_list[i],DEC)
+                print(score,end=TAB)
         print('')
 
         if(metrics['ndcg']):
