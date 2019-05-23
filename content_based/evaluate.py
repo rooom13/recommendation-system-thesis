@@ -31,13 +31,13 @@ def loadData(dataset_path):
 
  
     plays_full = read_object(plays_full_path).tocsr()
-    print('1/5',end='...')
+    print('1/5')
     plays_train = read_object(plays_train_path).tocsr()
-    print('2/5',end='...')
+    print('2/5')
     norm_plays_full = read_object(norm_plays_full_path).tocsr()
-    print('3/5', end='...')
+    print('3/5')
     ds = pd.read_csv(bios_path,sep='\t') 
-    print('4/5', end='...')
+    print('4/5')
     artist_index, index_artist = read_object(artists_indices_path)
     print('5/5')
 
@@ -63,19 +63,20 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
         new_completed = (user_id +1)/ (NUSERS) * 100
         print_progress('\tEvaluating CB SR k=' + str(k) + '\t  ', completed ,new_completed  )
 
+
+
         # user id mapped to usernames
         user_history = [index_artist[artistid] for artistid in (plays_train[user_id] > 1).nonzero()[1] ]
 
         # whichs indices in abios
-        history_index_bios = ds_bios[ds_bios['id'].isin([user_history])].index.values
+        history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
         # recommend
         rec_indices = model.recommend_similars(history_index_bios,k)
 
         # which artists id are those indices 
         rec_artists = [ds_bios.iloc[i]['id'] for i in rec_indices]
 
-        print(history_index_bios,rec_artists)
-        sys.exit()
+
         scores = []
         relevants = []
 
@@ -93,10 +94,6 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
                 norm_ground_truth = norm_plays_full[user_id,artist_id]
                 scores.append(norm_ground_truth)
-
-
-
-
 
         precision_list.append(sum(relevants)/k)
         mrr_list.append(metrics.mean_reciprocal_rank(relevants))
@@ -136,7 +133,6 @@ def evaluate(dataset_path,results_path, kk=[10,100,200]):
 
     for k in kk:
         ndcg_list, precision_list, mrr_list, diversity = get_scores(ds_bios,plays_full,plays_train, norm_plays_full,model,artist_index, index_artist, k=k)
-        print('diversity',len(diversity))
         save_object(ndcg_list,results_path+'ndcg_list_'+str(k)+'.pkl')
         save_object(precision_list,results_path+'precision_list_'+str(k)+'.pkl')
         save_object(mrr_list,results_path+'mrr_list_'+str(k)+'.pkl')

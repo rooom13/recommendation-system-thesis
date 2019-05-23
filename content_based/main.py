@@ -3,8 +3,7 @@ from evaluate import evaluate
 # from view_metrics import view_metrics
 import sys
 
-
-fakeDataset = True
+fakeDataset = False
 dataset_path = '../fake_dataset/' if fakeDataset else '../dataset/'
 results_path =  '../fake_results/' if fakeDataset else '../results/'
 
@@ -16,7 +15,7 @@ try:
     kk = [int(sys.argv[1])]
 except:
     kk = [5,10,100,200,500]
-    kk = [5]
+    kk = [2]
 evaluate(dataset_path, results_path,kk=kk)
 # view_metrics(results_path,kk=kk, showPrecision=True, showNdcg=True, showMrr=True, showPlots=False)
 
