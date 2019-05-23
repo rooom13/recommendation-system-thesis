@@ -39,20 +39,20 @@ def load_data(dataset_path,precomputed_path, methods):
     model_path = precomputed_path + 'model.pkl'
     bios_path = dataset_path + 'bios.txt'
 
- 
+    print('0/7')
     plays_full = read_object(plays_full_path).tocsr()
-    print('1/7',end='...')
+    print('1/7')
     plays_train = read_object(plays_train_path).tocsr()
-    print('2/7', end='...')
+    print('2/7')
     norm_plays_full = read_object(norm_plays_full_path).tocsr()
-    print('3/7', end='...')
+    print('3/7')
     norm_plays_train = read_object(norm_plays_train_path).tocsr()
-    print('4/7', end='...')
+    print('4/7')
     artist_index, index_artist = read_object(artists_indices_path)
-    print('5/7', end='...')
+    print('5/7')
     model = None if not methods['cf'] else read_object(model_path)
 
-    print('5/7', end='...')
+    print('5/7')
     ds = None if not methods['cb'] else pd.read_csv(bios_path,sep='\t') 
     print('7/7')
 
@@ -110,7 +110,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     new_completed = 0
     for user_id in range(0,NUSERS):
         new_completed = (user_id +1)/ (NUSERS) * 100
-        # print_progress('Evaluating '+msg_computing+' k=' + str(k) + '\t  ', completed ,new_completed  )
+        print_progress('Evaluating '+msg_computing+' k=' + str(k) + '\t  ', completed ,new_completed  )
         
         # Colaborative filtering rank
         cf_rank = None if not methods['cf'] else cf_model.recommend(user_id, norm_plays_train,N=k ) 
@@ -122,7 +122,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
         user_history =  None if not methods['cb'] else [index_artist[artistid] for artistid in user_history_indexs]
         
         # Content based rank 
-        cb_rank =  get_cb_rank(ds_bios, user_history, cb_model,k)
+        cb_rank = None if not methods['cb'] else get_cb_rank(ds_bios, user_history, cb_model,k)
       
         # Random baseline rank
         rnd_rank = None if not metrics['rnd'] else get_rnd_rank(NARTISTS,user_history_indexs, k)
@@ -164,8 +164,9 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
 
         
         # Diversities
-        if(metrics['diversity']):
+        if(metrics['diversity'] and methods['cf']):
                 cf_diversity.update([i for i,x in cf_rank])
+        if(metrics['diversity'] and methods['cb']):
                 cb_diversity.update(cb_rank)
 
         # Relevants & ndcg score

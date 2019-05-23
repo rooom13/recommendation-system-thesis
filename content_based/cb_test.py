@@ -142,7 +142,7 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
 
 
 
-# @atexit.register
+@atexit.register
 def saveme():
         print('saving backup!')
         save_object((the_user_id, diversities, precisions, mrrs, ndcgs),'backup.pkl')

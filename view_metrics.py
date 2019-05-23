@@ -61,29 +61,37 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 upperBounds = read_object(results_cf + 'upper_bound_list_'+ str(k) +'.pkl')
                 upper_bound_list.append(avg(upperBounds))
             
-            if(metrics['map']):            
-                precisions_cf = read_object(results_cf + 'precision_list_'+ str(k) +'.pkl')
-                precisions_cb = read_object(results_cb + 'precision_list_'+ str(k) +'.pkl')
-                cf_map_list.append(avg(precisions_cf))
-                cb_map_list.append(avg(precisions_cb))
+            if(metrics['map']): 
+                if(methods['cf']):
+                    precisions_cf = read_object(results_cf + 'precision_list_'+ str(k) +'.pkl')
+                    cf_map_list.append(avg(precisions_cf))
+                if(methods['cb']):
+                    precisions_cb = read_object(results_cb + 'precision_list_'+ str(k) +'.pkl')
+                    cb_map_list.append(avg(precisions_cb))
             
-            if(metrics['ndcg']):            
-                ndcg_cf = read_object(results_cf + 'ndcg_list_'+ str(k) +'.pkl')
-                ndcg_cb = read_object(results_cb + 'ndcg_list_'+ str(k) +'.pkl')
-                cf_ndcg_list.append(avg(ndcg_cf))
-                cb_ndcg_list.append(avg(ndcg_cb))
+            if(metrics['ndcg']): 
+                if(methods['cf']):
+                    ndcg_cf = read_object(results_cf + 'ndcg_list_'+ str(k) +'.pkl')
+                    cf_ndcg_list.append(avg(ndcg_cf))
+                if(methods['cb']):
+                    ndcg_cb = read_object(results_cb + 'ndcg_list_'+ str(k) +'.pkl')
+                    cb_ndcg_list.append(avg(ndcg_cb))
             
             if(metrics['mrr']):
-                mrr_cf = read_object(results_cf + 'mrr_list_'+ str(k) +'.pkl')
-                mrr_cb = read_object(results_cb + 'mrr_list_'+ str(k) +'.pkl')
-                cf_mrr_list.append(avg(mrr_cf))
-                cb_mrr_list.append(avg(mrr_cb))
+                if(methods['cf']):
+                    mrr_cf = read_object(results_cf + 'mrr_list_'+ str(k) +'.pkl')
+                    cf_mrr_list.append(avg(mrr_cf))
+                if(methods['cb']):
+                    mrr_cb = read_object(results_cb + 'mrr_list_'+ str(k) +'.pkl')
+                    cb_mrr_list.append(avg(mrr_cb))
             
             if(metrics['diversity']):
-                diversity_cf = read_object(results_cf + 'diversity_'+ str(k) +'.pkl')
-                diversity_cb = read_object(results_cb + 'diversity_'+ str(k) +'.pkl')
-                cf_diversity_list.append(len(diversity_cf))
-                cb_diversity_list.append(len(diversity_cb))
+                if(methods['cf']):
+                    diversity_cf = read_object(results_cf + 'diversity_'+ str(k) +'.pkl')
+                    cf_diversity_list.append(len(diversity_cf))
+                if(methods['cb']):
+                    diversity_cb = read_object(results_cb + 'diversity_'+ str(k) +'.pkl')
+                    cb_diversity_list.append(len(diversity_cb))
                 # print(diversity_cb)
 
       
