@@ -18,16 +18,15 @@ resultsPath = './fake_results/' if fakeDataset else './results/'
 try:
     kk = [int(sys.argv[1])]
 except:
-    kk = [5,10,100,200,500]
-    kk = [5,10,100 ]#,200,500]
+    kk = [5]
 
 metrics = {
     'map': True, 
-    'diversity': False, 
+    'diversity': True, 
     'ndcg': True,
-    'mrr': False,
-    'rnd': False,
-    'ub': False
+    'mrr': True,
+    'rnd': True,
+    'ub': True
     }
 methods = {
     'cf': True,
@@ -45,5 +44,5 @@ methods = {
 # generate_model(datasetPath)
 
 # print('evaluate!')
-# evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+#evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)

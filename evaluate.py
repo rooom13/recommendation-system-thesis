@@ -215,7 +215,8 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
         if(metrics['mrr'] and methods['cf']):
                 cf_mrr_list.append(metricsf.mean_reciprocal_rank(cf_relevants))
         if(metrics['mrr'] and methods['cb']):
-                cb_mrr_list.append(metricsf.mean_reciprocal_rank(cb_relevants))
+                mrr = metricsf.mean_reciprocal_rank(cb_relevants)
+                cb_mrr_list.append(0 if np.isnan(mrr) else mrr)
 
             
         

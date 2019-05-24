@@ -131,6 +131,8 @@ def get_scores(ds_bios,plays_full,plays_train,norm_plays_full, model,artist_inde
                 norm_ground_truth = norm_plays_full[user_id,artist_id]
                 scores.append(norm_ground_truth)
 
+        
+
         # ks
         for k in [5,10,100,200,500]:
                 diversities[k].update(rec_indices[:k])

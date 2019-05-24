@@ -25,7 +25,7 @@ DEFAULT_METRICS = {
     'map': False, 
     'diversity': False, 
     'ndcg': False, 
-    'mrr': False,
+    'mrr': True,
     'rnd': True,
     'ub': True,
     }
@@ -83,6 +83,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                     cf_mrr_list.append(avg(mrr_cf))
                 if(methods['cb']):
                     mrr_cb = read_object(results_cb + 'mrr_list_'+ str(k) +'.pkl')
+                    print(mrr_cb)
                     cb_mrr_list.append(avg(mrr_cb))
             
             if(metrics['diversity']):
