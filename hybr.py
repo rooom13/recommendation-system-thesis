@@ -60,8 +60,8 @@ def readme():
         print('Starting from User', the_user_id)
         return the_user_id, diversities, precisions, mrrs, ndcgs
 
-loadBackup = False
-saveBackup = False
+loadBackup = True
+saveBackup = True
 
 
 precisions = {
@@ -133,7 +133,7 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
     completed = 0
     new_completed = 0
 
-    for user_id in range(the_user_id,NUSERS):
+    for user_id in range(the_user_id,300):
         the_user_id = user_id
         print_progress( completed,user_id,NUSERS,precisions)
 
@@ -151,11 +151,10 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
       
 
 
-        hybrid_rank = mix(cf_rank, cb_rank, artist_index)
+        hybrid_rank = mix(cf_rank, cb_rank, artist_index)[:500]
         
 
 
-        sys.exit()
 
         scores = []
         relevants = []
@@ -173,7 +172,7 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
 
         # ks
         for k in [5,10,100,200,500]:
-                diversities[k].update(rec_indices[:k])
+                diversities[k].update(hybrid_rank[:k])
                 precisions[k].append(sum(relevants[:k])/k)
                 mrrs[k].append(metrics.mean_reciprocal_rank(relevants[:k]))
                 ndcgs[k].append(metrics.ndcg_at_k(scores[:k], k))
@@ -208,7 +207,7 @@ def evaluate(dataset_path, results_path):
             save_object(mrrs[k],results_path+'mrr_list_'+str(k)+'.pkl')
 
     
-fakeDataset = True
+fakeDataset = False
 dataset_path= './fake_dataset/' if fakeDataset else './dataset/'
 results_path= './fake_results/' if fakeDataset else './results/'
  

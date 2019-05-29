@@ -11,7 +11,7 @@ print('Go!',end='...')
 # from evaluate2 import evaluate as evaluate2
 
 from view_metrics import view_metrics
-fakeDataset = True
+fakeDataset = False
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 

@@ -237,5 +237,10 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 for i in range(0, len(kk) ) :
                     score = cb_diversity_list[i]
                     print(score,end=TAB)
+            if(methods['hybrid']):
+                print('CB',end=TAB)
+                for i in range(0, len(kk) ) :
+                    score = hybrid_diversity_list[i]
+                    print(score,end=TAB)
             print('')
 
