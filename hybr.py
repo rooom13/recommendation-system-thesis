@@ -133,7 +133,7 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
     completed = 0
     new_completed = 0
 
-    for user_id in range(the_user_id,300):
+    for user_id in range(the_user_id,NUSERS):
         the_user_id = user_id
         print_progress( completed,user_id,NUSERS,precisions)
 
@@ -149,13 +149,8 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
         # Content based rank 
         cb_rank = get_cb_rank(ds_bios, user_history, cb_model,500)
       
-
-
         hybrid_rank = mix(cf_rank, cb_rank, artist_index)[:500]
         
-
-
-
         scores = []
         relevants = []
 
@@ -167,8 +162,6 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
                 
                 norm_ground_truth = norm_plays_full[user_id,artist_id]
                 scores.append(norm_ground_truth)
-
-        
 
         # ks
         for k in [5,10,100,200,500]:

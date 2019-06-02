@@ -7,8 +7,7 @@ print('Go!',end='...')
 # from content_based.bios_to_table import bios_to_table as read_bios
 
 # from get_dataset import getDataset as get_dataset
-# from evaluate import evaluate
-# from evaluate2 import evaluate as evaluate2
+from evaluate import evaluate
 
 from view_metrics import view_metrics
 fakeDataset = False
@@ -22,17 +21,17 @@ except:
     kk = [5,10,100,200,500]
 
 metrics = {
-    'map': True, 
-    'diversity': True, 
-    'ndcg': True,
-    'mrr': True,
+    'map': False, 
+    'diversity': False, 
+    'ndcg': False,
+    'mrr': False,
     'rnd': False,
     'ub': False
     }
 methods = {
     'cf': False,
-    'cb': False,
-    'hybrid': True
+    'cb': True,
+    'hybrid': False
 }
 
 
@@ -46,6 +45,6 @@ methods = {
 # generate_model(datasetPath)
 
 # print('evaluate!')
-#evaluate(datasetPath,resultsxXPath,kk=kk, metrics=metrics, methods=methods)
+evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 # evaluate2(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
-view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)
+# view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)

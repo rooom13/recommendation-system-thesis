@@ -17,13 +17,13 @@ def print_histogram(x,bins=20, title='Histogram',xlabel='score', ylabel='# users
 
 
 fakeDataset =  False
-full_plays_path = './precomputed_data/plays_full.pkl' if not fakeDataset else './fake_precomputed_data/plays_full.pkl'
+full_plays_path = './dataset/precomputed_data/plays_full.pkl' if not fakeDataset else './fake_precomputed_data/plays_full.pkl'
 
 plays = read_object(full_plays_path).tocsr()
 
 NUSERS,NARTISTS = plays.shape
 
-no0_artists = read_object('./precomputed_data/artistFreq.pkl')
+no0_artists = read_object('./dataset/precomputed_data/artistFreq.pkl')
 
 
 for i in range(0,len(no0_artists)):
@@ -39,4 +39,4 @@ for i in range(0,len(no0_artists)):
 
 # save_object(no0_artists,'TATATA.pkl')
 
-print_histogram(no0_artists,bins=50, title='Artist frequency',ylabel='# users',xlabel= '# artists')
+print_histogram(no0_artists,bins=50, title='Artists count per user histogram of MSD-A ',ylabel='# users',xlabel= '# artist count')
