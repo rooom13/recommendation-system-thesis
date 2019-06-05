@@ -39,17 +39,17 @@ def load_data(dataset_path,precomputed_path, methods):
     model_path = precomputed_path + 'model.pkl'
     bios_path = dataset_path + 'bios.txt'
 
-    print('0/7')
+#     print('0/7')
     plays_full = read_object(plays_full_path).tocsr()
-    print('1/7')
+#     print('1/7')
     plays_train = read_object(plays_train_path).tocsr()
-    print('2/7')
+#     print('2/7')
     norm_plays_full = read_object(norm_plays_full_path).tocsr()
-    print('3/7')
+#     print('3/7')
     norm_plays_train = read_object(norm_plays_train_path).tocsr()
-    print('4/7')
+#     print('4/7')
     artist_index, index_artist = read_object(artists_indices_path)
-    print('5/7')
+#     print('5/7')
     model = None if not methods['cf'] else read_object(model_path)
 
     print('5/7')
@@ -158,9 +158,13 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
                 x, nonzero = plays_full[user_id].nonzero()
                 for artist_id in nonzero:
                         ground_truth = plays_full[user_id,artist_id]
-                        train = plays_train[user_id,artist_id]
-                        if(train == 0 and ground_truth > 1):
-                                upper_bound += 1
+                        try:
+                                train = plays_train[user_id,artist_id]
+                        except:
+                                train = 0
+                        finally:
+                                if(train == 0 and ground_truth > 1):
+                                        upper_bound += 1
 
         
         # Diversities
@@ -231,7 +235,7 @@ def get_paths(dataset_path, results_path):
     if not os.path.exists(results_path):
             os.mkdir(results_path)
 
-    cf_results_path = results_path + 'collaborating_filtering/' 
+    cf_results_path = results_path + 'collaborative_filtering/' 
     cb_results_path = results_path + 'content_based/' 
     
     if not os.path.exists(cf_results_path):
@@ -272,7 +276,7 @@ def evaluate(dataset_path,results_path,kk=[10,100,200], metrics= DEFAULT_METRICS
             save_object(rnd_baseline_list,results_paths[0]+'rnd_baseline_list_'+str(k)+'.pkl')
         if(metrics['ub']):
             save_object(upper_bound_list,results_paths[0]+'upper_bound_list_'+str(k)+'.pkl')
-            
+        
         for i in range(0,len(results_paths)):
                 if(i == 0 and not methods['cf'] ):
                         continue

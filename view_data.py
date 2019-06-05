@@ -30,13 +30,18 @@ def read_data(dataset_path, chunkSize, low,high,nbins, Nlines):
     return bin_edges,total
 
 
-def plot_histogram(bin_edges, total):
-    plt.hist(bin_edges[:-1], bins=bin_edges, weights=total, edgecolor='black')
+def plot_histogram(bin_edgess, totall):
+
+    print(len(bin_edgess))
+    print(len(totall))
+
+
+    plt.hist(bin_edgess[:-1], bins=bin_edgess, weights=totall, edgecolor='black')
     plt.xlabel('Number of plays ')
     plt.ylabel('Frequency')
     plt.title('Histogram of MSD-AG')
     plt.grid(True)
-    plt.xscale('log')
+    # plt.xscale('log')
     plt.yscale('log')
     plt.show()
 
@@ -93,8 +98,7 @@ p_bin_edges = [0., 48.335, 96.67, 145.005, 193.34, 241.675, 290.01, 338.345,
  8120.28, 8168.615, 8216.95, 8265.285, 8313.62, 8361.955, 8410.29, 8458.625,
  8506.96, 8555.295, 8603.63, 8651.965, 8700.3,  8748.635, 8796.97, 8845.305,
  8893.64, 8941.975, 8990.31, 9038.645, 9086.98, 9135.315, 9183.65, 9231.985,
- 9280.32, 9328.655, 9376.99, 9425.325, 9473.66, 9521.995, 9570.33, 9618.665,
- 9667. ]
+ 9280.32, 9328.655, 9376.99, 9425.325, 9473.66, 9521.995, 9570.33, 9618.665]
 
 p_total = [25461215, 181570, 35642, 11441, 4923, 2530, 1416, 805, 508, 349, 233,
  182, 124, 91, 62, 58, 41, 37, 31, 16, 17, 22, 9, 13, 6, 11, 6, 7, 2, 7, 4, 3,
@@ -103,7 +107,7 @@ p_total = [25461215, 181570, 35642, 11441, 4923, 2530, 1416, 805, 508, 349, 233,
  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 0, 0, 0, 0, 0, 0, 0, 1]
+ 0, 0, 0, 0, 0, 0, 0]
 
 p_Nlines = 25701407
 p_low,p_high = (0, 9667)
@@ -127,6 +131,9 @@ def main():
     print('Plays -> Lowest:', low, ', Highest:', high )
     # read data
     bin_edges,total = ( p_bin_edges ,p_total ) if lazy else read_data( dataset_path, chunkSize, low,high,nbins, Nlines)
-    plot_histogram(bin_edges,total)
+
+    N = 65
+
+    plot_histogram(bin_edges[:N],total[:N-1])
 
 main()

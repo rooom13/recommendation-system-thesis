@@ -18,7 +18,7 @@ def avg(d):
         
 def view_metrics(resultsPath,kk=[10,100,200], showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
-        results_path = resultsPath + 'collaborating_filtering/' 
+        results_path = resultsPath + 'collaborative_filtering/' 
 
         print('Evaluations results for k=',kk)
         

@@ -31,7 +31,7 @@ DEFAULT_METRICS = {
     }
 def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DEFAULT_METHODS, showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
-        results_cf = resultsPath + 'collaborating_filtering/' 
+        results_cf = resultsPath + 'collaborative_filtering/' 
         results_cb = resultsPath + 'content_based/' 
         results_hybrid = resultsPath + 'hybrid/' 
 
@@ -56,12 +56,12 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
         cb_diversity_list = []
         hybrid_diversity_list = []
         
+        
 
         for k in kk:
             if(metrics['rnd']):
                 randomBaselines  = read_object(results_cf + 'rnd_baseline_list_'+ str(k) +'.pkl')
                 randomBaselines_list.append(avg(randomBaselines))
-            
             if(metrics['ub']):
                 upperBounds = read_object(results_cf + 'upper_bound_list_'+ str(k) +'.pkl')
                 upper_bound_list.append(avg(upperBounds))
@@ -89,14 +89,18 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                     hybrid_ndcg_list.append(avg(ndcg_hybrid))
             
             if(metrics['mrr']):
+
+                import numpy as np
                 if(methods['cf']):
                     mrr_cf = read_object(results_cf + 'mrr_list_'+ str(k) +'.pkl')
                     cf_mrr_list.append(avg(mrr_cf))
                 if(methods['cb']):
                     mrr_cb = read_object(results_cb + 'mrr_list_'+ str(k) +'.pkl')
+                    mrr_cb =np.nan_to_num(mrr_cb)
                     cb_mrr_list.append(avg(mrr_cb))
                 if(methods['hybrid']):
                     mrr_hybrid = read_object(results_hybrid + 'mrr_list_'+ str(k) +'.pkl')
+                    mrr_hybrid =np.nan_to_num(mrr_hybrid)
                     hybrid_mrr_list.append(avg(mrr_hybrid))
             
             if(metrics['diversity']):
@@ -114,7 +118,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
       
         TAB = '\t\t'
         NL = '\n'
-        DEC = 10
+        DEC = 4
 
         print('Evaluations results for k =',kk,end=':'+NL+NL)
 
@@ -210,6 +214,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 for i in range(0, len(kk) ) :
                     score = round(cb_mrr_list[i],DEC)
                     print(score,end=TAB)
+                print(NL,end=TAB)
             if(methods['hybrid']):            
                 print('HB',end=TAB)
                 for i in range(0, len(kk) ) :
@@ -237,8 +242,9 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 for i in range(0, len(kk) ) :
                     score = cb_diversity_list[i]
                     print(score,end=TAB)
+                print(NL,end=TAB)
             if(methods['hybrid']):
-                print('CB',end=TAB)
+                print('HB',end=TAB)
                 for i in range(0, len(kk) ) :
                     score = hybrid_diversity_list[i]
                     print(score,end=TAB)

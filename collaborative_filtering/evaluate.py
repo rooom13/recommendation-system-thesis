@@ -107,7 +107,7 @@ def evaluate(datasetPath,results_path,kk=[10,100,200]):
         if not os.path.exists(results_path):
                 os.mkdir(results_path)
 
-        results_path = results_path + 'collaborating_filtering/' 
+        results_path = results_path + 'collaborative_filtering/' 
         
         if not os.path.exists(results_path):
                 os.mkdir(results_path)
