@@ -7,10 +7,10 @@ from collaborative_filtering.generate_model import generate_model
 from content_based.bios_to_table import bios_to_table as read_bios
 
 # from get_dataset import getDataset as get_dataset
-from evaluate import evaluate
+# from evaluate import evaluate
 from hybr import evaluate as evaluateh
 
-from view_metrics import view_metrics
+# from view_metrics import view_metrics
 fakeDataset = True
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
@@ -44,7 +44,7 @@ read_bios(datasetPath)
 generate_model(datasetPath)
 
 # print('evaluate!')
-evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
-view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)
+# evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+# view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)
 evaluateh(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)

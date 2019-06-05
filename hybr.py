@@ -61,7 +61,7 @@ def readme():
         return the_user_id, diversities, precisions, mrrs, ndcgs
 
 loadBackup = False
-saveBackup = False
+saveBackup = True
 
 
 precisions = {
@@ -175,7 +175,7 @@ upper_bounds = {
 
 the_user_id = 0
 if loadBackup:
-        the_user_id, diversities, precisions, mrrs, ndcgs = readme()
+        the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs = readme()
 
 
 
@@ -335,7 +335,7 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
 def saveme():
         if(saveBackup):
                 print('saving backup!')
-                save_object((the_user_id, diversities, precisions, mrrs, ndcgs),'backup.pkl')
+                save_object((the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs),'backup.pkl')
                 print('saved')
 
 methods = {
