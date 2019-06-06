@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from ReadSave import * 
 import sys
 
+import numpy as np
 
 def print_histogram(x,bins=20, title='Histogram',xlabel='score', ylabel='# users' ):
         n, bins, patches = plt.hist(x, bins)
@@ -36,7 +37,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
         results_hybrid = resultsPath + 'hybrid/' 
 
         
-      
+     
 
         randomBaselines_list=[]
         upper_bound_list=[]
@@ -56,7 +57,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
         cb_diversity_list = []
         hybrid_diversity_list = []
         
-        
+        k = [5]
 
         for k in kk:
             if(metrics['rnd']):
@@ -76,6 +77,8 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 if(methods['hybrid']):
                     precisions_hybrid = read_object(results_hybrid + 'precision_list_'+ str(k) +'.pkl')
                     hybrid_map_list.append(avg(precisions_hybrid))
+                print(results_hybrid)
+
             
             if(metrics['ndcg']): 
                 if(methods['cf']):
@@ -102,6 +105,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                     mrr_hybrid = read_object(results_hybrid + 'mrr_list_'+ str(k) +'.pkl')
                     mrr_hybrid =np.nan_to_num(mrr_hybrid)
                     hybrid_mrr_list.append(avg(mrr_hybrid))
+                    print(mrr_hybrid)
             
             if(metrics['diversity']):
                 if(methods['cf']):
@@ -118,7 +122,7 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
       
         TAB = '\t\t'
         NL = '\n'
-        DEC = 4
+        DEC = 10
 
         print('Evaluations results for k =',kk,end=':'+NL+NL)
 

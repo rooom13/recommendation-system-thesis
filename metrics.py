@@ -10,6 +10,14 @@ Learning to Rank for Information Retrieval (Tie-Yan Liu)
 import numpy as np
 
 
+def reciprocal_rank(r):
+    try:
+        rel = r.index(1)
+    except:
+        return 0
+    return 1/(rel +1)
+
+
 def mean_reciprocal_rank(rs):
     """Score is reciprocal of the rank of the first relevant item
 
@@ -35,6 +43,8 @@ def mean_reciprocal_rank(rs):
     """
     rs = (np.asarray(r).nonzero()[0] for r in rs)
     return np.mean([1. / (r[0] + 1) if r.size else 0. for r in rs])
+
+
 
 
 def r_precision(r):

@@ -105,7 +105,7 @@ def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_t
     cb_diversity = set()
 
     msg_computing = get_msg_computing(metrics, methods) 
-    
+    NUSERS = 10
     completed = 0
     new_completed = 0
     for user_id in range(0,NUSERS):

@@ -56,12 +56,12 @@ def load_data(dataset_path,precomputed_path):
 
 def readme():
         print('Loading backup!')
-        (the_user_id, diversities, precisions, mrrs, ndcgs) = read_object('backup.pkl')
+        (the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs) = read_object('backup.pkl')
         print('Starting from User', the_user_id)
-        return the_user_id, diversities, precisions, mrrs, ndcgs
+        return the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
 
-loadBackup = False
-saveBackup = True
+loadBackup = True
+saveBackup = False
 
 
 precisions = {
@@ -226,6 +226,8 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
     completed = 0
     new_completed = 0
 
+    NUSERS = 10 #107108
+
     for user_id in range(the_user_id,NUSERS):
         the_user_id = user_id
         print_progress( completed,user_id,NUSERS,precisions)
@@ -309,23 +311,24 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
         # ks
         for k in [5,10,100,200,500]:
 
-                rnd_baselines[k].append(sum(rnd_relevants)/k)
+                rnd_baselines[k].append(sum(rnd_relevants[:k])/k)
                 upper_bounds[k].append(1 if upper_bound/k > 1 else upper_bound/k)
 
                 diversities['hb'][k].update(hb_rank[:k])
                 precisions['hb'][k].append(sum(hb_relevants[:k])/k)
-                mrrs['hb'][k].append(metrics.mean_reciprocal_rank(hb_relevants[:k]))
+                mrrs['hb'][k].append(metrics.reciprocal_rank(hb_relevants[:k]))
                 ndcgs['hb'][k].append(metrics.ndcg_at_k(hb_scores[:k], k))
                 
                 diversities['cb'][k].update(cb_rank[:k])
                 precisions['cb'][k].append(sum(cb_relevants[:k])/k)
-                mrrs['cb'][k].append(metrics.mean_reciprocal_rank(cb_relevants[:k]))
+                mrrs['cb'][k].append(metrics.reciprocal_rank(cb_relevants[:k]))
                 ndcgs['cb'][k].append(metrics.ndcg_at_k(cb_scores[:k], k))
                 
                 diversities['cf'][k].update([i for i,x in cf_rank[:k]])
                 precisions['cf'][k].append(sum(cf_relevants[:k])/k)
-                mrrs['cf'][k].append(metrics.mean_reciprocal_rank(cf_relevants[:k]))
+                mrrs['cf'][k].append(metrics.reciprocal_rank(cf_relevants[:k]))
                 ndcgs['cf'][k].append(metrics.ndcg_at_k(cf_scores[:k], k))
+
 
     return rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
 
