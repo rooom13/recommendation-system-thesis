@@ -1,4 +1,4 @@
-# recommendation-system (In progress)
+# Recommendation system evaluation for collaborative filtering, content-based & hybrid approaches
 Bachelor thesis about recommendation system. In this thesis a deep evaluation of a collaborative filtering method, conten-based method and hybrid approach have been carry out.
 
 For the **Collaborative filtering** method, a _Matrix factorization approach_ was evaluated using [_implicit.py_](implicit.readthedocs.io).
