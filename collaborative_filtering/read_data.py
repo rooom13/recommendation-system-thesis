@@ -24,10 +24,6 @@ def get_train_data(triplets, P = 0.85):
     msk = np.random.rand(len(triplets)) < P
 
     data =  triplets[msk]
-    # data['user'] = data['user'].astype("category")
-    # data['artist'] = data['artist'].astype("category")
-    # data['plays'] = data['plays'].astype(float)
-    # print(data)
 
     data['user'].astype("category")
     data['artist'].astype("category")
@@ -63,7 +59,7 @@ def get_plays(triplets):
     return coo_matrix((data, (rows, cols))).T
 
 
-def read_data(dataset_path):
+def split_data(dataset_path):
 
         print('Reading data...',end=' ')
 

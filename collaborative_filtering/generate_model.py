@@ -23,6 +23,6 @@ def generate_model(datasetPath,factors=64,regularization=0.1,iterations=50):
     
     model = implicit.als.AlternatingLeastSquares(factors=factors, iterations=iterations)
     model.fit(plays_train.T)
-    save_object(model, precomputed_path + 'model.pkl')
+    save_object(model, precomputed_path + 'cf_model.pkl')
     # user_vecs_reg, item_vecs_reg = implicit.alternating_least_squares(plays_train, factors=factors, regularization = regularization, iterations = iterations)
 

@@ -62,7 +62,7 @@ def getDataset():
     if os.path.exists(pathDataset):
         print(pathDataset)
         print('Dataset already exists')
-        exit(0)
+        return
     os.mkdir(pathDataset)
     getData(urlBios, pathDataset+nameBios,pathDataset + folderBios)
     getData(urlTags, pathDataset+nameTags, pathDataset + folderTags)

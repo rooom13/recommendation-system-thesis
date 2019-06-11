@@ -1,42 +1,35 @@
 from ReadSave import *
-import implicit
-from content_based.TfidfRecommender import TfidfRecommender
+import metrics
+import atexit
 
-from scipy.sparse import coo_matrix, csr_matrix
-from numpy import array
 import numpy as np
-import sys
-import time
-import metrics as metricsf
-import os
 import pandas as pd
-
-
+import sys
+import os
 
 # Just for a prettier matrix print
 float_formatter = lambda x: "%.2f" % x
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
-
-def print_progress(text, completed, new_completed):
+def print_progress(completed, new_completed, total,p):
      if (new_completed > completed): 
             completed = new_completed
-            sys.stdout.write('\r'+text+ str(completed) + ' %' )
+            percentage = round(new_completed/total *100,6)
+            sys.stdout.write('\rusers: '+ str(completed+1) + '/' + str(total) +' - '+ str(percentage)+' map_k10: ' + str(sum(p['cf'][10][:10])/10) )
             sys.stdout.flush()
 
 
 
 # load user_indices, artist_indices, plays 
-def load_data(dataset_path,precomputed_path, methods):
+def load_data(dataset_path,precomputed_path):
     print('Evaluation started, loading data...', end='')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     plays_train_path = precomputed_path + 'plays_train.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
     norm_plays_train_path = precomputed_path + 'norm_plays_train.pkl'
     artists_indices_path = precomputed_path + 'artist_index_index_artist.pkl'
-
-
-    model_path = precomputed_path + 'model.pkl'
+    cf_model_path = precomputed_path + 'cf_model.pkl'
+    tfIdfRecommender_path = precomputed_path + 'tfIdfRecommender.pkl'
     bios_path = dataset_path + 'bios.txt'
 
 #     print('0/7')
@@ -50,24 +43,144 @@ def load_data(dataset_path,precomputed_path, methods):
 #     print('4/7')
     artist_index, index_artist = read_object(artists_indices_path)
 #     print('5/7')
-    model = None if not methods['cf'] else read_object(model_path)
+    cf_model = read_object(cf_model_path)
+    
+    cb_model = read_object(tfIdfRecommender_path)
+    ds = pd.read_csv(bios_path,sep='\t') 
+#     print('7/7')
 
-    print('5/7')
-    ds = None if not methods['cb'] else pd.read_csv(bios_path,sep='\t') 
-    print('7/7')
+    return plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, cb_model, ds
 
-    return plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, model, ds
-#             rnd_baseline_list, upper_bound_list, precision_lists, ndcg_lists, mrr_lists, diversities  =  )
 
-def get_msg_computing(metrics, methods):
-        return ('map ' if metrics['map'] else '') +\
-    ('rnd ' if metrics['rnd'] else '') +\
-    ('ub ' if metrics['ub'] else '') +\
-    ('diversity ' if metrics['diversity'] else '') +\
-    ('ndcg ' if metrics['ndcg'] else '') +\
-    ('mrr ' if metrics['mrr'] else '') + ' -> ' +\
-    ('CF ' if methods['cf'] else '') +\
-    ('CB ' if methods['cb'] else '') 
+def readme():
+        print('Loading backup!')
+        (the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs) = read_object('backup.pkl')
+        print('Starting from User', the_user_id)
+        return the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
+
+loadBackup = False
+saveBackup = False
+
+
+precisions = {
+        'hb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cf': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        }
+}
+mrrs = {
+        'hb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cf': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        }
+}
+ndcgs = {
+        'hb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cb': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        },
+        'cf': {
+                5: [],
+                10: [],
+                100: [],
+                200: [],
+                500: []
+        }
+}
+
+diversities = {
+        'hb': {
+                5: set(),
+                10: set(),
+                100: set(),
+                200: set(),
+                500: set()
+        },
+        'cb': {
+                5: set(),
+                10: set(),
+                100: set(),
+                200: set(),
+                500: set()
+        },
+        'cf': {
+                5: set(),
+                10: set(),
+                100: set(),
+                200: set(),
+                500: set()
+        }
+}
+
+rnd_baselines = {
+        5: [],
+        10: [],
+        100: [],
+        200: [],
+        500: []
+}
+upper_bounds = {
+        5: [],
+        10: [],
+        100: [],
+        200: [],
+        500: []
+}
+
+the_user_id = 0
+if loadBackup:
+        the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs = readme()
+
+
+
+def get_cb_rank(ds_bios, user_history, cb_model,k):
+        history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
+        rec_indices = cb_model.recommend_similars(history_index_bios,k)
+        return [ds_bios.iloc[i]['id'] for i in rec_indices]
 
 def get_rnd_rank(NARTISTS,exclude,k):
         rnd_rank = np.arange(NARTISTS)
@@ -82,216 +195,205 @@ def get_rnd_rank(NARTISTS,exclude,k):
                 pass
         return rnd_rank
 
-def get_cb_rank(ds_bios, user_history, cb_model,k):
-        history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
-        rec_indices = cb_model.recommend_similars(history_index_bios,k)
-        return [ds_bios.iloc[i]['id'] for i in rec_indices]
 
-def get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, metrics, methods):
+def mix(cf_rank,cb_rank,artist_index):
+        hybrid = []
 
-    NUSERS,NARTISTS = plays_full.shape
+        for i in range(0,len(cb_rank)):
+                try: 
+                        cf_id, x = cf_rank[i]
+                        if not cf_id in hybrid:
+                                hybrid.append(cf_id)
+                except:
+                        pass
+                try:
+                        cb_id = artist_index[cb_rank[i]]
+                        if not cb_id in hybrid:
+                                hybrid.append(cb_id)
+                except: 
+                        pass
+        return hybrid
 
-    # instead of storing directly the average, we save the list so we can observe the distribution
-    rnd_baseline_list = []
-    upper_bound_list = []
-    cf_precision_list = []
-    cb_precision_list = []
-    cf_ndcg_list = []
-    cb_ndcg_list = []
-    cf_mrr_list = []
-    cb_mrr_list = []
+def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist):
+    
+    NUSERS,NARTISTS = plays_full.shape    
 
-    cf_diversity = set()
-    cb_diversity = set()
+    global the_user_id
+   
 
-    msg_computing = get_msg_computing(metrics, methods) 
-    NUSERS = 10
     completed = 0
     new_completed = 0
-    for user_id in range(0,NUSERS):
-        new_completed = (user_id +1)/ (NUSERS) * 100
-        print_progress('Evaluating '+msg_computing+' k=' + str(k) + '\t  ', completed ,new_completed  )
-        
+
+
+    lightUsers = get_rnd_rank(NUSERS,[],1000)
+
+    for user_id in lightUsers: #range(the_user_id,NUSERS):
+        the_user_id = user_id
+        print_progress( completed,user_id,NUSERS,precisions)
+
         # Colaborative filtering rank
-        cf_rank = None if not methods['cf'] else cf_model.recommend(user_id, norm_plays_train,N=k ) 
+        cf_rank =cf_model.recommend(user_id, norm_plays_train,N=500 ) 
 
         # get history of artistid
         user_history_indexs = (plays_train[user_id] > 1).nonzero()[1] 
 
         # mapped to artistnames from user artist history
-        user_history =  None if not methods['cb'] else [index_artist[artistid] for artistid in user_history_indexs]
+        user_history =  [index_artist[artistid] for artistid in user_history_indexs]
         
         # Content based rank 
-        cb_rank = None if not methods['cb'] else get_cb_rank(ds_bios, user_history, cb_model,k)
+        cb_rank = get_cb_rank(ds_bios, user_history, cb_model,500)
       
+        # Hybrid mixed rank
+        hb_rank = mix(cf_rank, cb_rank, artist_index)[:500]
+
         # Random baseline rank
-        rnd_rank = None if not metrics['rnd'] else get_rnd_rank(NARTISTS,user_history_indexs, k)
-
-        # print('rnd_rank',rnd_rank)
-        # print('cf_rank',cf_rank)
-        # print('cb_rank',cb_rank)
-        # sys.exit()
+        rnd_rank = get_rnd_rank(NARTISTS,user_history_indexs, 500)
         
+        hb_scores = []
+        cb_scores = []
+        cf_scores = []
+        
+        hb_relevants = []
+        cb_relevants = []
+        cf_relevants = []
 
-        # score lists for user
         rnd_relevants = []
         upper_bound = 0
-
-        cf_ndcg_score = []
-        cb_ndcg_score = []
         
-        cf_relevants = []
-        cb_relevants = []
+        # Hybrid
+        for artist_id in hb_rank:     
+                ground_truth = plays_full[user_id,artist_id]
+                hb_relevants.append(1 if ground_truth > 1 else 0)                 
+                norm_ground_truth = norm_plays_full[user_id,artist_id]
+                hb_scores.append(norm_ground_truth)
         
-        # rnd baseline
-        if(metrics['rnd']):
-                for artist_id in rnd_rank:
-                        try:
-                                ground_truth = plays_full[user_id,artist_id]
-                        except:
-                                ground_truth = 0
-                        finally:
-                                rnd_relevants.append(1 if ground_truth > 1 else 0) 
-        
-        # Upper bounds
-        if(metrics['ub']):
-                x, nonzero = plays_full[user_id].nonzero()
-                for artist_id in nonzero:
-                        ground_truth = plays_full[user_id,artist_id]
-                        try:
-                                train = plays_train[user_id,artist_id]
-                        except:
-                                train = 0
-                        finally:
-                                if(train == 0 and ground_truth > 1):
-                                        upper_bound += 1
-
-        
-        # Diversities
-        if(metrics['diversity'] and methods['cf']):
-                cf_diversity.update([i for i,x in cf_rank])
-        if(metrics['diversity'] and methods['cb']):
-                cb_diversity.update(cb_rank)
-
-        # Relevants & ndcg score
-        if(metrics['map'] or metrics['ndcg'] or metrics['mrr'] ):
-                # Cf
-                if(methods['cf']): 
-                        for artist_id, x in cf_rank:
-                                # relevants
-                                ground_truth = plays_full[user_id,artist_id]
-                                cf_relevants.append(1 if ground_truth > 1 else 0) 
-                                # ndcg
-                                norm_ground_truth = norm_plays_full[user_id,artist_id]
-                                cf_ndcg_score.append(norm_ground_truth)
-                        
-                # Cb 
-                if(methods['cb']): 
-                        for artist in cb_rank:
-                                try:
-                                        artist_id = artist_index[artist]
-                                except KeyError:
-                                        continue
-                                # relevants
-                                ground_truth = plays_full[user_id,artist_id]
-                                cb_relevants.append(1 if ground_truth > 1 else 0) 
-                                # ndcg
-                                norm_ground_truth = norm_plays_full[user_id,artist_id]
-                                cb_ndcg_score.append(norm_ground_truth)
-        
-
-        # rnd baseline & upper bound
-        if(metrics['rnd']):
-                rnd_baseline_list.append(sum(rnd_relevants)/k)
-        if metrics['ub']:
-                upper_bound_list.append( 1 if upper_bound/k > 1 else upper_bound/k)
-        # nDCG
-        if(metrics['ndcg'] and methods['cf']):
-                cf_ndcg_list.append(metricsf.ndcg_at_k(cf_ndcg_score, k))
-        if(metrics['ndcg'] and methods['cb']):
-             cb_ndcg_list.append(metricsf.ndcg_at_k(cb_ndcg_score, k))
-        # precision
-        if(metrics['map'] and methods['cf']):
-                cf_precision_list.append(sum(cf_relevants)/k)
-        if(metrics['map'] and methods['cb']):
-                cb_precision_list.append(sum(cb_relevants)/k)
-        # mrr
-        if(metrics['mrr'] and methods['cf']):
-                cf_mrr_list.append(metricsf.mean_reciprocal_rank(cf_relevants))
-        if(metrics['mrr'] and methods['cb']):
-                mrr = metricsf.mean_reciprocal_rank(cb_relevants)
-                cb_mrr_list.append(0 if np.isnan(mrr) else mrr)
-
-            
-        
-
-    print(' ...completed', end='\n')
-    # return ndcg_list, precision_list, mrr_list,rnd_baseline_list, upper_bound_list, diversity
-    return rnd_baseline_list, upper_bound_list, (cf_precision_list, cb_precision_list), (cf_ndcg_list, cb_ndcg_list), (cf_mrr_list, cb_mrr_list) , (cf_diversity, cb_diversity)  
-        
-def get_paths(dataset_path, results_path):
-    precomputed_path =  dataset_path + 'precomputed_data/'  
-
-    if not os.path.exists(results_path):
-            os.mkdir(results_path)
-
-    cf_results_path = results_path + 'collaborative_filtering/' 
-    cb_results_path = results_path + 'content_based/' 
-    
-    if not os.path.exists(cf_results_path):
-            os.mkdir(cf_results_path)
-
-    if not os.path.exists(cb_results_path):
-            os.mkdir(cb_results_path)
-    return precomputed_path, [cf_results_path, cb_results_path]
-    
-DEFAULT_METRICS = {
-    'map': False, 
-    'diversity': True, 
-    'ndcg': False, 
-    'mrr': False,
-    'rnd': True,
-    'ub': True,
-    }
-DEFAULT_METHODS= {
-    'cf': True,
-    'cb': True
-}    
-def evaluate(dataset_path,results_path,kk=[10,100,200], metrics= DEFAULT_METRICS, methods=DEFAULT_METHODS):
-    precomputed_path, results_paths = get_paths(dataset_path, results_path)
+        # Collaborative Filtering
+        for artist_id, x in cf_rank:     
+                ground_truth = plays_full[user_id,artist_id]
+                cf_relevants.append(1 if ground_truth > 1 else 0)                 
+                norm_ground_truth = norm_plays_full[user_id,artist_id]
+                cf_scores.append(norm_ground_truth)
        
+        # Rnd Baseline
+        for artist_id in rnd_rank:     
+                try:
+                        ground_truth = plays_full[user_id,artist_id]
+                except:
+                        ground_truth = 0
+                finally:
+                        rnd_relevants.append(1 if ground_truth > 1 else 0) 
+        
+        # Upper Bound
+        x, nonzero = plays_full[user_id].nonzero()
+        for artist_id in nonzero:
+                ground_truth = plays_full[user_id,artist_id]
+                try:
+                        train = plays_train[user_id,artist_id]
+                except:
+                        train = 0
+                finally:
+                        if(train == 0 and ground_truth > 1):
+                                upper_bound += 1
+
+        # Content based
+        for artist_name in cb_rank:     
+                try:
+                        artist_id = artist_index[artist_name]
+                except KeyError:
+                        continue
+
+                ground_truth = plays_full[user_id,artist_id]
+                cb_relevants.append(1 if ground_truth > 1 else 0)                 
+                norm_ground_truth = norm_plays_full[user_id,artist_id]
+                cb_scores.append(norm_ground_truth)
+
+        # ks
+        for k in [5,10,100,200,500]:
+
+                rnd_baselines[k].append(sum(rnd_relevants[:k])/k)
+                upper_bounds[k].append(1 if upper_bound/k > 1 else upper_bound/k)
+
+                diversities['hb'][k].update(hb_rank[:k])
+                precisions['hb'][k].append(sum(hb_relevants[:k])/k)
+                mrrs['hb'][k].append(metrics.reciprocal_rank(hb_relevants[:k]))
+                ndcgs['hb'][k].append(metrics.ndcg_at_k(hb_scores[:k], k))
                 
-    # load normalized data from pickle files
-    plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, ds_bios = load_data(dataset_path,precomputed_path, methods)
+                diversities['cb'][k].update(cb_rank[:k])
+                precisions['cb'][k].append(sum(cb_relevants[:k])/k)
+                mrrs['cb'][k].append(metrics.reciprocal_rank(cb_relevants[:k]))
+                ndcgs['cb'][k].append(metrics.ndcg_at_k(cb_scores[:k], k))
+                
+                diversities['cf'][k].update([i for i,x in cf_rank[:k]])
+                precisions['cf'][k].append(sum(cf_relevants[:k])/k)
+                mrrs['cf'][k].append(metrics.reciprocal_rank(cf_relevants[:k]))
+                ndcgs['cf'][k].append(metrics.ndcg_at_k(cf_scores[:k], k))
 
+
+    return rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
+
+
+
+@atexit.register
+def saveme():
+        if(saveBackup):
+                print('saving backup!')
+                save_object((the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs),'backup.pkl')
+                print('saved')
+
+methods = {
+        'cb': True,
+        'cf': True,
+        'hb': True
+}
+
+def evaluate(dataset_path, results_path, kk=[5,10,100,200,500], metrics={}, methods={}):
+
+
+    precomputed_path = dataset_path + 'precomputed_data/'
+
+    plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, cb_model, ds_bios = load_data(dataset_path,precomputed_path)
+
+
+    rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs  = get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist)
+
+    results_path_hybrid = results_path + 'hybrid/'
+    results_path_cf = results_path + 'collaborative_filtering/'
+    results_path_cb = results_path + 'content_based/'
     
-    cb_model = None if not methods['cb'] else TfidfRecommender(ds_bios['bio'].tolist())
 
+
+
+
+    result_paths = results_path_hybrid
+    for k in kk:
+            save_object(diversities['hb'][k],result_paths+'diversity_'+str(k)+'.pkl')
+            save_object(precisions['hb'][k],result_paths+'precision_list_'+str(k)+'.pkl')
+            save_object(ndcgs['hb'][k],result_paths+'ndcg_list_'+str(k)+'.pkl')
+            save_object(mrrs['hb'][k],result_paths+'mrr_list_'+str(k)+'.pkl')
+    
+    result_paths = results_path_cb
 
     for k in kk:
-            
-        rnd_baseline_list, upper_bound_list, precision_lists, ndcg_lists, mrr_lists, diversities  = get_scores(k,ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist,metrics, methods)
-
-        if(metrics['rnd']):
-            save_object(rnd_baseline_list,results_paths[0]+'rnd_baseline_list_'+str(k)+'.pkl')
-        if(metrics['ub']):
-            save_object(upper_bound_list,results_paths[0]+'upper_bound_list_'+str(k)+'.pkl')
+            save_object(diversities['cb'][k],result_paths+'diversity_'+str(k)+'.pkl')
+            save_object(precisions['cb'][k],result_paths+'precision_list_'+str(k)+'.pkl')
+            save_object(ndcgs['cb'][k],result_paths+'ndcg_list_'+str(k)+'.pkl')
+            save_object(mrrs['cb'][k],result_paths+'mrr_list_'+str(k)+'.pkl')
+    
+    result_paths = results_path_cf
         
-        for i in range(0,len(results_paths)):
-                if(i == 0 and not methods['cf'] ):
-                        continue
-                elif(i == 1 and not methods['cb'] ):
-                        continue
-                results_path = results_paths[i]
-                if(metrics['ndcg']):
+    for k in kk:
 
-                        save_object(ndcg_lists[i],results_path+'ndcg_list_'+str(k)+'.pkl')
-                if(metrics['map']):
-                        
-                        save_object(precision_lists[i],results_path+'precision_list_'+str(k)+'.pkl')
-                if(metrics['mrr']):
-                        
-                        save_object(mrr_lists[i],results_path+'mrr_list_'+str(k)+'.pkl')
-                if(metrics['diversity']):                
-                        save_object(diversities[i],results_path+'diversity_'+str(k)+'.pkl')
+            save_object(rnd_baselines[k],result_paths+'rnd_baseline_list_'+str(k)+'.pkl')
+            save_object(upper_bounds[k],result_paths+'upper_bound_list_'+str(k)+'.pkl')
+            save_object(diversities['cf'][k],result_paths+'diversity_'+str(k)+'.pkl')
+            save_object(precisions['cf'][k],result_paths+'precision_list_'+str(k)+'.pkl')
+            save_object(ndcgs['cf'][k],result_paths+'ndcg_list_'+str(k)+'.pkl')
+            save_object(mrrs['cf'][k],result_paths+'mrr_list_'+str(k)+'.pkl')
+
+    
+# fakeDataset = True
+# dataset_path= './fake_dataset/' if fakeDataset else './dataset/'
+# results_path= './fake_results/' if fakeDataset else './results/'
+ 
+# evaluate(dataset_path, results_path)
 
