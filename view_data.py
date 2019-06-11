@@ -37,9 +37,9 @@ def plot_histogram(bin_edgess, totall):
 
 
     plt.hist(bin_edgess[:-1], bins=bin_edgess, weights=totall, edgecolor='black')
-    plt.xlabel('Number of plays ')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of MSD-AG')
+    plt.xlabel('Cantidad de reproducciones')
+    plt.ylabel('Frecuencia')
+    plt.title('Histograma de MSD-AG')
     plt.grid(True)
     # plt.xscale('log')
     plt.yscale('log')

@@ -5,32 +5,26 @@ import sys
 
 import numpy as np
 
-def print_histogram(x,bins=20, title='Histogram',xlabel='score', ylabel='# users' ):
-        n, bins, patches = plt.hist(x, bins)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-        plt.title(title)
-        plt.grid(True)
-        plt.yscale('log')
-        plt.show()
+
         
 def avg(d):
         return sum(d)/len(d)
         
 DEFAULT_METHODS= {
+    'cb': True,
     'cf': True,
-    'cb': True
+    'hybrid': True
 }    
 
 DEFAULT_METRICS = {
-    'map': False, 
-    'diversity': False, 
-    'ndcg': False, 
+    'map': True, 
+    'diversity': True, 
+    'ndcg': True, 
     'mrr': True,
     'rnd': True,
     'ub': True,
     }
-def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DEFAULT_METHODS, showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
+def view_metrics(resultsPath,kk=[5,10,100,200,500],metrics=DEFAULT_METRICS, methods=DEFAULT_METHODS, showPrecision=True, showNdcg=True, showMrr=True, showPlots=False):
 
         results_cf = resultsPath + 'collaborative_filtering/' 
         results_cb = resultsPath + 'content_based/' 
@@ -77,7 +71,6 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                 if(methods['hybrid']):
                     precisions_hybrid = read_object(results_hybrid + 'precision_list_'+ str(k) +'.pkl')
                     hybrid_map_list.append(avg(precisions_hybrid))
-                print(results_hybrid)
 
             
             if(metrics['ndcg']): 
@@ -105,7 +98,6 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                     mrr_hybrid = read_object(results_hybrid + 'mrr_list_'+ str(k) +'.pkl')
                     mrr_hybrid =np.nan_to_num(mrr_hybrid)
                     hybrid_mrr_list.append(avg(mrr_hybrid))
-                    print(mrr_hybrid)
             
             if(metrics['diversity']):
                 if(methods['cf']):
@@ -254,3 +246,56 @@ def view_metrics(resultsPath,kk=[10,100,200],metrics=DEFAULT_METRICS, methods=DE
                     print(score,end=TAB)
             print('')
 
+
+        print(kk)
+        print(cf_map_list)
+
+        plt.plot(kk, cf_map_list,label='cf')
+        plt.plot(kk, hybrid_map_list,label='hb')
+        plt.plot(kk, cb_map_list,label='cb')
+        plt.plot(kk, randomBaselines_list,'--r',label='rnd')
+        plt.plot(kk, upper_bound_list,'--g',label='cb')
+        plt.xlabel('k')
+        plt.ylabel('MAP')
+        plt.title('MAP vs k')
+        plt.legend()
+        # plt.grid(True)
+        # plt.yscale('log')
+        plt.show()
+
+        plt.plot(kk, cf_diversity_list,label='cf')
+        plt.plot(kk, hybrid_diversity_list,label='hb')
+        plt.plot(kk, cb_diversity_list,label='cb')
+        plt.xlabel('k')
+        plt.ylabel('Diversidad')
+        plt.title('Diversidad vs k')
+        plt.legend()
+        # plt.grid(True)
+        # plt.yscale('log')
+        plt.show()
+
+        plt.plot(kk, cf_ndcg_list,label='cf')
+        plt.plot(kk, hybrid_ndcg_list,label='hb')
+        plt.plot(kk, cb_ndcg_list,label='cb')
+        plt.xlabel('k')
+        plt.ylabel('nDCG')
+        plt.title('nDCG vs k')
+        plt.legend()
+        # plt.grid(True)
+        # plt.yscale('log')
+        plt.show()
+
+        plt.plot(kk, cf_mrr_list,label='cf')
+        plt.plot(kk, hybrid_mrr_list,label='hb')
+        plt.plot(kk, cb_mrr_list,label='cb')
+        plt.xlabel('k')
+        plt.ylabel('MRR')
+        plt.title('MRR vs k')
+        plt.legend()
+        # plt.grid(True)
+        # plt.yscale('log')
+        plt.show()
+
+
+
+view_metrics('./results/')

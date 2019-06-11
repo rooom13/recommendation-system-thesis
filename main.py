@@ -19,7 +19,7 @@ resultsPath = './fake_results/' if fakeDataset else './results/'
 try:
     kk = [int(sys.argv[1])]
 except:
-    kk = [5 ,10] # ,100,200,500]
+    kk = [5 ,10 ,100,200,500]
 
 metrics = {
     'map': True, 
@@ -38,13 +38,13 @@ methods = {
 
 # if not fakeDataset: get_dataset()
 
-# read_triplets(datasetPath)
-# scale_data(datasetPath)
-# read_bios(datasetPath)
-# generate_model(datasetPath)
+read_triplets(datasetPath)
+scale_data(datasetPath)
+read_bios(datasetPath)
+generate_model(datasetPath)
 
 # print('evaluate!')
-evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+#evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 # view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)
-# evaluateh(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+evaluateh(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods)

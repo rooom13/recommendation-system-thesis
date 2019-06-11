@@ -60,7 +60,7 @@ def readme():
         print('Starting from User', the_user_id)
         return the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
 
-loadBackup = True
+loadBackup = False
 saveBackup = False
 
 
@@ -226,9 +226,10 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
     completed = 0
     new_completed = 0
 
-    NUSERS = 10 #107108
 
-    for user_id in range(the_user_id,NUSERS):
+    lightUsers = get_rnd_rank(NUSERS,[],1000)
+
+    for user_id in lightUsers: #range(the_user_id,NUSERS):
         the_user_id = user_id
         print_progress( completed,user_id,NUSERS,precisions)
 
