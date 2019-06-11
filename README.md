@@ -1,3 +1,4 @@
+(In progress)
 # Recommendation system evaluation for collaborative filtering, content-based & hybrid approaches
 Bachelor thesis about recommendation system. In this thesis a deep evaluation of a collaborative filtering method, conten-based method and hybrid approach has been carry out.
 
@@ -10,7 +11,16 @@ Bachelor thesis about recommendation system. In this thesis a deep evaluation of
 
 
 ## Repository contents
-* **get_dataset.py** : Downloads *MSD-A* datased and extracts it.
-* **view_data.py** : Generates histogram for observing data distribution.
-* **read_data.py** : Saves python objects using pickle for faster execution and testing.
-
+* Plots: Folder containing plots for dataset visualization.
+* collaborative_filtering
+* content_based
+* data_visualization: Scripts for reading the results and obtaining metrics.
+* fake_dataset
+* results
+* resultsBackup
+* _ReadSave.py_: Simpler _.pkl_ object read/saver.
+* backup.pkl
+* _evaluate.py_: Main loop of evaluation of the three methods.
+* _get_dataset.py_: Script for download & extract the dataset.
+* _main.py_: "Control panel" script for choosing options for the evaluation (which metrics, methods, randomize fold...)
+* _metrics.py_: Ranking metrics implementations from this [_Gist_](https://gist.github.com/bwhite/3726239).
