@@ -1,7 +1,6 @@
 from ReadSave import *
 import implicit
 from scipy.sparse import coo_matrix, csr_matrix
-from numpy import array
 import numpy as np
 
 # load , artist_indices, plays 

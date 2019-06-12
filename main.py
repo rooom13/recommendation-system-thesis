@@ -50,7 +50,7 @@ read_bios(datasetPath)
 generate_model(datasetPath)
 generate_tfIdfRecommender(datasetPath)
 
-# print('evaluate!')
+print('evaluate!')
 evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 
-# view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods, showPlots=False)
+view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods, showPlots=False)

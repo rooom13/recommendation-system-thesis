@@ -18,13 +18,13 @@ def view_plays_freq(datasetPath, isNorm=True):
    
 
     if isNorm:
-        plt.xlabel('Cantidad de reproducciones normalizada')
-        plt.title('Histograma de MSD-AG normalizado')
+        plt.xlabel('Normalized plays count')
+        plt.title('Histogram of normalized MSD-AG')
     else:
-        plt.xlabel('Cantidad de reproducciones')
-        plt.title('Histograma de MSD-AG')
+        plt.xlabel('Plays count')
+        plt.title('Histogram of MSD-AG')
         plt.yscale('log')
-    plt.ylabel('Frecuencia')
+    plt.ylabel('Rate')
     plt.grid(True)
     plt.show()
 

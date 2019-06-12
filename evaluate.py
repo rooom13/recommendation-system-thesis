@@ -362,9 +362,13 @@ def evaluate(dataset_path, results_path, kk=[5,10,100,200,500], metrics={}, meth
     
 
 
+    if not os.path.exists(results_path):
+            os.mkdir(results_path)
 
 
     result_paths = results_path_hybrid
+    if not os.path.exists(results_path_hybrid):
+            os.mkdir(results_path_hybrid)
     for k in kk:
             save_object(diversities['hb'][k],result_paths+'diversity_'+str(k)+'.pkl')
             save_object(precisions['hb'][k],result_paths+'precision_list_'+str(k)+'.pkl')
@@ -372,7 +376,9 @@ def evaluate(dataset_path, results_path, kk=[5,10,100,200,500], metrics={}, meth
             save_object(mrrs['hb'][k],result_paths+'mrr_list_'+str(k)+'.pkl')
     
     result_paths = results_path_cb
-
+    
+    if not os.path.exists(results_path_cb):
+            os.mkdir(results_path_cb)
     for k in kk:
             save_object(diversities['cb'][k],result_paths+'diversity_'+str(k)+'.pkl')
             save_object(precisions['cb'][k],result_paths+'precision_list_'+str(k)+'.pkl')

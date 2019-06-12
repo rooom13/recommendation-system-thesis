@@ -282,8 +282,8 @@ def view_metrics(resultsPath,kk=[5,10,100,200,500],metrics=DEFAULT_METRICS, meth
             if show_cb:
                 plt.plot(kk, cb_diversity_list,label='cb')
             plt.xlabel('k')
-            plt.ylabel('Diversidad')
-            plt.title('Diversidad vs k')
+            plt.ylabel('Diversity')
+            plt.title('Diversity vs k')
             plt.legend()
 
             plt.show()
