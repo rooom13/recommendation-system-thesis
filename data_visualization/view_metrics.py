@@ -10,7 +10,7 @@ def avg(d):
 DEFAULT_METHODS= {
     'cb': True,
     'cf': True,
-    'hybrid': True
+    'hb': True
 }    
 
 DEFAULT_METRICS = {
@@ -29,7 +29,7 @@ def view_metrics(resultsPath,kk=[5,10,100,200,500],metrics=DEFAULT_METRICS, meth
 
     show_cb = methods['cb']
     show_cf = methods['cf']
-    show_hb = methods['hybrid']
+    show_hb = methods['hb']
 
     show_map = metrics['map']
     show_div = metrics['diversity']

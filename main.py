@@ -13,7 +13,7 @@ from data_visualization.view_plays_freq import view_plays_freq
 from data_visualization.view_metrics import view_metrics
 
 
-fakeDataset = False
+fakeDataset = True
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 
@@ -30,7 +30,7 @@ metrics = {
 methods = {
     'cf': True,
     'cb': True,
-    'hybrid': True
+    'hb': True
 }
 
 
@@ -38,8 +38,7 @@ visualizeDataset = True
 
 if not fakeDataset: get_dataset()
 
-split_data(datasetPath)
-
+# split_data(datasetPath)
 
 if visualizeDataset:
     view_plays_freq(datasetPath,False)
@@ -50,7 +49,7 @@ if visualizeDataset:
 # generate_model(datasetPath)
 # generate_tfIdfRecommender(datasetPath)
 
-# print('evaluate!')
-# evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
+print('evaluate!')
+evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 
 # view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods, showPlots=False)
