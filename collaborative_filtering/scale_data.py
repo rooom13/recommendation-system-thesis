@@ -2,15 +2,6 @@ from ReadSave import *
 from sklearn.preprocessing import normalize
 
 
-# Storing and readind objects
-def save_object(obj, filename):
-    with open(filename, 'wb') as output:
-        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
-
-def read_object(filename):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
-
 def scale(plays):
        return normalize(plays) * 1000
 

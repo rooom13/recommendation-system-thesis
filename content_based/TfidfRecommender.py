@@ -1,5 +1,11 @@
-import numpy as np
+"""
+    This file contains the class TfidfRecommender.
+    This object is initializated with a list of strings (raw text as biographies)
 
+    recommend_similars: given similar items indices list, recomends similars
+    recommend: given a text query, recommends similars
+
+"""
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from ReadSave import *
@@ -11,6 +17,7 @@ class TfidfRecommender:
         self.dataset = dataset
         self.tfidf_vectorizer = TfidfVectorizer(analyzer='word',  min_df=0, stop_words='english') # no ngrams
         self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(dataset)
+
 
     def calcuate_similarities(self, tfidf_query, k, exclude=[]):
         # get K cosine similar indices to query
