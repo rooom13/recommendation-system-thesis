@@ -13,7 +13,7 @@ from data_visualization.view_plays_freq import view_plays_freq
 from data_visualization.view_metrics import view_metrics
 
 
-fakeDataset = True
+fakeDataset = False
 datasetPath = './fake_dataset/' if fakeDataset else './dataset/'
 resultsPath = './fake_results/' if fakeDataset else './results/'
 
@@ -30,11 +30,11 @@ metrics = {
 methods = {
     'cf': True,
     'cb': True,
-    'hb': True
+    'hb': True 
 }
 
 
-visualizeDataset = True
+visualizeDataset = False
 
 if not fakeDataset: get_dataset()
 
@@ -52,4 +52,4 @@ if visualizeDataset:
 print('evaluate!')
 evaluate(datasetPath,resultsPath,kk=kk, metrics=metrics, methods=methods)
 
-# view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods, showPlots=False)
+view_metrics(resultsPath, kk=kk, metrics=metrics,methods=methods, showPlots=True)

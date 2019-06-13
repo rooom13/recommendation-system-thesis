@@ -8,19 +8,41 @@ import sys
 import os
 
 
-
-def print_progress(completed, new_completed, total,p):
+## UTILS
+def print_progress(completed, new_completed, total):
      if (new_completed > completed): 
             completed = new_completed
             percentage = round(new_completed/total *100,6)
-            sys.stdout.write('\rusers: '+ str(completed+1) + '/' + str(total) +' - '+ str(percentage)+' map_k10: ' + str(sum(p['cf'][10][:10])/10) )
+            sys.stdout.write('\rusers: '+ str(completed+1) + '/' + str(total) +' - '+ str(percentage))
             sys.stdout.flush()
 
+# Load previous saved execution backup
+def load_backup():
+        print('Loading backup!')
+        (the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs) = read_object('backup.pkl')
+        print('Starting from User', the_user_id)
+        return the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
 
+# In case of error or program exit (ex ctrl + C)
+@atexit.register
+def saveme():
+        if(saveBackup):
+                print('saving backup!')
+                save_object((the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs),'backup.pkl')
+                print('saved')
+
+# till yet this needs to be manually set
+loadBackup = False
+saveBackup = False
+
+# creates dir if path doesn't exist 
+def mkdir_ifNot_exist(path):
+    if not os.path.exists(path):
+        os.mkdir(path)   
 
 # load user_indices, artist_indices, plays 
-def load_data(dataset_path,precomputed_path):
-    print('Evaluation started, loading data...', end='')
+def load_data(dataset_path,precomputed_path, methods):
+    print('Evaluation started, cahing data...', end='')
     plays_full_path = precomputed_path + 'plays_full.pkl'
     plays_train_path = precomputed_path + 'plays_train.pkl'
     norm_plays_full_path = precomputed_path + 'norm_plays_full.pkl'
@@ -30,36 +52,30 @@ def load_data(dataset_path,precomputed_path):
     tfIdfRecommender_path = precomputed_path + 'tfIdfRecommender.pkl'
     bios_path = dataset_path + 'bios.txt'
 
-    print('0/7',end=' ')
+    print('this may take some minutes...')
     plays_full = read_object(plays_full_path).tocsr()
-    print('1/7',end=' ')
     plays_train = read_object(plays_train_path).tocsr()
-    print('2/7')
     norm_plays_full = read_object(norm_plays_full_path).tocsr()
-    print('3/7')
     norm_plays_train = read_object(norm_plays_train_path).tocsr()
-    print('4/7')
-    artist_index, index_artist = read_object(artists_indices_path)
-    print('5/7')
-    cf_model = read_object(cf_model_path)
-    
-    cb_model = read_object(tfIdfRecommender_path)
-    ds = pd.read_csv(bios_path,sep='\t') 
-#     print('7/7')
+
+    print('..almost..')
+    artist_index, index_artist, cb_model, ds, cf_model = None, None, None, None, None
+
+    if methods['hb'] or methods['cb']: 
+        artist_index, index_artist = read_object(artists_indices_path)
+        cb_model = read_object(tfIdfRecommender_path)
+        ds = pd.read_csv(bios_path,sep='\t')
+
+    print('5/6')
+    if methods['hb'] or methods['cf']: 
+        cf_model = read_object(cf_model_path)
+    print('6/6')
 
     return plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, cb_model, ds
 
 
-def readme():
-        print('Loading backup!')
-        (the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs) = read_object('backup.pkl')
-        print('Starting from User', the_user_id)
-        return the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
 
-loadBackup = False
-saveBackup = False
-
-
+# Global variables for easy backup 
 precisions = {'hb': {5: [],10: [],100: [],200: [],500: []},'cb': {5: [],10: [],100: [],200: [],500: []},'cf': {5: [],10: [],100: [],200: [],500: []}}
 mrrs = {'hb': {5: [],10: [],100: [],200: [],500: []},'cf': {5: [],10: [],100: [],200: [],500: []},'cb': {5: [],10: [],100: [],200: [],500: []}}
 ndcgs = {'hb': {5: [],10: [],100: [],200: [],500: []},'cb': {5: [],10: [],100: [],200: [],500: []},'cf': {5: [],10: [],100: [],200: [],500: []}}
@@ -69,14 +85,24 @@ upper_bounds = {5: [],10: [],100: [],200: [],500: []}
 
 the_user_id = 0
 if loadBackup:
-        the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs = readme()
+        the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs = load_backup()
 
-
-
-def get_cb_rank(ds_bios, user_history, cb_model,k):
+def get_cb_rank(ds_bios, user_history, cb_model,artist_index, k):
         history_index_bios = ds_bios[ds_bios['id'].isin(user_history)].index.values
         rec_indices = cb_model.recommend_similars(history_index_bios,k)
-        return [ds_bios.iloc[i]['id'] for i in rec_indices]
+        names = [ds_bios.iloc[i]['id'] for i in rec_indices]
+        nonCF_artistid = -1
+        cb_rank = []
+        for name in names:
+                try:
+                        cf_id = artist_index[name]
+                except:
+                        cf_id = nonCF_artistid
+                        nonCF_artistid = nonCF_artistid-1
+                finally:
+                        cb_rank.append(cf_id) 
+        return cb_rank
+
 
 def get_rnd_rank(NARTISTS,exclude,k):
         rnd_rank = np.arange(NARTISTS)
@@ -92,9 +118,8 @@ def get_rnd_rank(NARTISTS,exclude,k):
         return rnd_rank
 
 
-def mix(cf_rank,cb_rank,artist_index):
+def mix(cf_rank,cb_rank):
         hybrid = []
-
         for i in range(0,len(cb_rank)):
                 try: 
                         cf_id = cf_rank[i]
@@ -102,15 +127,12 @@ def mix(cf_rank,cb_rank,artist_index):
                                 hybrid.append(cf_id)
                 except:
                         pass
-                try:
-                        cb_id = artist_index[cb_rank[i]]
-                        if not cb_id in hybrid:
-                                hybrid.append(cb_id)
-                except: 
-                        pass
+                cb_id = cb_rank[i]
+                if not cb_id in hybrid:
+                        hybrid.append(cb_id)
         return hybrid
 
-def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, methodKeys):
+def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, tfIdfRecommender,artist_index, index_artist, methodKeys,kk):
     
     NUSERS,NARTISTS = plays_full.shape    
 
@@ -119,16 +141,16 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
     completed = 0
     new_completed = 0
 
-    lightUsers = get_rnd_rank(NUSERS,[],1000)
+    lightUsers = get_rnd_rank(NUSERS,[],100)
 
     ranks = {}
 
     for user_id in lightUsers: #range(the_user_id,NUSERS):
         the_user_id = user_id
-        print_progress( completed,user_id,NUSERS,precisions)
+        print_progress(completed, user_id, NUSERS)
 
         # Colaborative filtering rank
-        ranks['cf'] =[i for i,x in cf_model.recommend(user_id, norm_plays_train,N=500 ) ]
+        ranks['cf'] =[i for i,x in cf_model.recommend(user_id, norm_plays_train,N=max(kk) ) ]
         # get history of artistid
         user_history_indexs = (plays_train[user_id] > 1).nonzero()[1] 
 
@@ -136,59 +158,33 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
         user_history =  [index_artist[artistid] for artistid in user_history_indexs]
         
         # Content based rank 
-        ranks['cb'] = get_cb_rank(ds_bios, user_history, cb_model,500)
-      
+        ranks['cb'] = get_cb_rank(ds_bios, user_history, tfIdfRecommender, artist_index,max(kk))
+
         # Hybrid mixed rank
-        ranks['hb'] = mix(ranks['cf'], ranks['cb'], artist_index)[:500]
+        ranks['hb'] = mix(ranks['cf'], ranks['cb'])[:max(kk)]
 
         # Random baseline rank
-        rnd_rank = get_rnd_rank(NARTISTS,user_history_indexs, 500)
+        rnd_rank = get_rnd_rank(NARTISTS,user_history_indexs, max(kk))
 
-        scores = {
-                'cf': [],
-                'cb': [],
-                'hb': []
-        }
-        relevants={
-                'cf': [],
-                'cb': [],
-                'hb': []
-        }
-
-
+        scores = {}
+        relevants={}
         rnd_relevants = []
         upper_bound = 0
-        
-        
-        # Collaborative Filtering
-        for artist_id in ranks['cf']:     
-                ground_truth = plays_full[user_id,artist_id]
-                relevants['cf'].append(1 if ground_truth > 1 else 0)
-                norm_ground_truth = norm_plays_full[user_id,artist_id]
-                scores['cf'].append(norm_ground_truth)
+
+        # Calculate relevants and scores for each method
+        for method in methodKeys:
+                scores[method] = []
+                relevants[method] = []
+                for artist_id in ranks[method]:
+                        ground_truth = plays_full[user_id,artist_id]
+                        relevants[method].append(1 if ground_truth > 1 else 0)
+                        
+                        norm_ground_truth = norm_plays_full[user_id,artist_id]
+                        scores[method].append(norm_ground_truth)
        
-        # Content based
-        for artist_name in ranks['cb']:     
-                try:
-                        artist_id = artist_index[artist_name]
-                except KeyError:
-                        continue
-
-                ground_truth = plays_full[user_id,artist_id]
-                relevants['cb'].append(1 if ground_truth > 1 else 0)                 
-                norm_ground_truth = norm_plays_full[user_id,artist_id]
-                scores['cb'].append(norm_ground_truth)
-
-        # Hybrid
-        for artist_id in ranks['hb']:     
-                ground_truth = plays_full[user_id,artist_id]
-                relevants['hb'].append(1 if ground_truth > 1 else 0)                 
-                norm_ground_truth = norm_plays_full[user_id,artist_id]
-                scores['hb'].append(norm_ground_truth)
-
         # Rnd Baseline
-        for artist_id in rnd_rank:     
-                try:
+        for artist_id in rnd_rank:
+                try: 
                         ground_truth = plays_full[user_id,artist_id]
                 except:
                         ground_truth = 0
@@ -207,40 +203,19 @@ def get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_tra
                         if(train == 0 and ground_truth > 1):
                                 upper_bound += 1
 
-
-        for k in [5,10,100,200,500]:
-
+        # save user metrics
+        for k in kk:
                 rnd_baselines[k].append(sum(rnd_relevants[:k])/k)
                 upper_bounds[k].append(1 if upper_bound/k > 1 else upper_bound/k)
 
         for method in methodKeys:
-            for k in [5,10,100,200,500]:
+            for k in kk:
                 diversities[method][k].update(ranks[method][:k])
                 precisions[method][k].append(sum(relevants[method][:k])/k)
                 ndcgs[method][k].append(metrics.ndcg_at_k(scores[method][:k], k))
                 mrrs[method][k].append(metrics.reciprocal_rank(relevants[method][:k]))
 
-
     return rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs
-
-
-
-@atexit.register
-def saveme():
-        if(saveBackup):
-                print('saving backup!')
-                save_object((the_user_id, rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs),'backup.pkl')
-                print('saved')
-
-methods = {
-        'cb': True,
-        'cf': True,
-        'hb': True
-}
-
-def mkdir_ifNot_exist(path):
-    if not os.path.exists(path):
-        os.mkdir(path)   
 
 
 def saveMetrics(kk,methods,result_paths, diversities, precisions, ndcgs, mrrs):
@@ -253,15 +228,10 @@ def saveMetrics(kk,methods,result_paths, diversities, precisions, ndcgs, mrrs):
             save_object(ndcgs[method][k],result_paths+'ndcg_list_'+str(k)+'.pkl')
             save_object(mrrs[method][k],result_paths+'mrr_list_'+str(k)+'.pkl')
 
-
 def evaluate(dataset_path, results_path, kk=[5,10,100,200,500], metrics={}, methods={}):
 
     precomputed_path = dataset_path + 'precomputed_data/'
-
-    plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, cb_model, ds_bios = load_data(dataset_path,precomputed_path)
-
-
-    
+    # which methods to evaluate
     methodsKeys = []
     result_paths = []
     if methods['cb']:
@@ -274,21 +244,18 @@ def evaluate(dataset_path, results_path, kk=[5,10,100,200,500], metrics={}, meth
             methodsKeys.append('hb')
             result_paths.append(results_path + 'hybrid/')
 
+    # Load user-item matrixes, models, indexes...
+    plays_full, plays_train, norm_plays_full, norm_plays_train, artist_index, index_artist, cf_model, cb_model, ds_bios = load_data(dataset_path,precomputed_path, methods)
+
+    # evaluate
+    rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs  = get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, methodsKeys, kk)
     
-    rnd_baselines, upper_bounds, diversities, precisions, mrrs, ndcgs  = get_scores(ds_bios, plays_full, plays_train, norm_plays_full, norm_plays_train,cf_model, cb_model,artist_index, index_artist, methodsKeys)
-    # main results path
+    # Save metrics results
     mkdir_ifNot_exist(results_path)
     saveMetrics(kk, methodsKeys, result_paths, diversities, precisions, ndcgs, mrrs)
 
-    for k in kk:
-            save_object(rnd_baselines[k],results_path+ 'collaborative_filtering/'+'rnd_baseline_list_'+str(k)+'.pkl')
-            save_object(upper_bounds[k],results_path+ 'collaborative_filtering/'+'upper_bound_list_'+str(k)+'.pkl')
-            
-
-    
-# fakeDataset = True
-# dataset_path= './fake_dataset/' if fakeDataset else './dataset/'
-# results_path= './fake_results/' if fakeDataset else './results/'
- 
-# evaluate(dataset_path, results_path)
-
+    # Save rnd baseline & upper bound
+    for precisions, result_path in zip([rnd_baselines,upper_bounds],[results_path + 'rnd_baseline/', results_path + 'upper_bound/']):
+        for k in kk:
+            mkdir_ifNot_exist(result_path)
+            save_object(precisions[k],result_path+'precision_list_'+str(k)+'.pkl')
